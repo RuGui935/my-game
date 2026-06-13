@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>设置 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span>🕸️ 03:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon"></div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="list-container">
+                <h3 class="section-title">⚙️ 游戏设置</h3>
+                <ul class="item-list" style="list-style:none;">
+                    <li onclick="showConfirm('clearData')"><span>🗑️ 清除所有存档数据</span><span>⚠️ 不可恢复</span></li>
+                    <li onclick="showConfirm('resetProgress')"><span>🔄 重置游戏进度</span><span>保留理智碎片</span></li>
+                    <li><span>🔊 音效</span><span id="soundToggle" style="cursor:pointer;">🔘 开启</span></li>
+                    <li><span>📳 震动反馈</span><span id="vibrationToggle" style="cursor:pointer;">🔘 开启</span></li>
+                </ul>
+            </div>
+            
+            <div class="list-container" style="margin-top: 20px;">
+                <h3 class="section-title">ℹ️ 关于</h3>
+                <ul class="item-list" style="list-style:none;">
+                    <li><span>版本</span><span>v1.0.0</span></li>
+                    <li><span>开发者</span><span>RuGui935</span></li>
+                    <li><span>反馈</span><span>论坛发帖</span></li>
+                </ul>
+            </div>
+            
+            <button class="action-btn" onclick="location.href='../index.html'" style="margin-top: 20px;">← 返回游戏</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">确认操作</h3>
+            <p id="modalMessage">此操作不可逆，确定要继续吗？</p>
+            <button id="modalConfirmBtn">确认</button>
+            <button id="modalCancelBtn">取消</button>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        let pendingAction = null;
+        const modal = document.getElementById('confirmModal');
+        
+        function showConfirm(action) {
+            pendingAction = action;
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            
+            if (action === 'clearData') {
+                modalTitle.textContent = '⚠️ 清除所有数据';
+                modalMessage.textContent = '这将删除所有游戏进度、理智碎片和事件记录。不可恢复！';
+            } else if (action === 'resetProgress') {
+                modalTitle.textContent = '🔄 重置进度';
+                modalMessage.textContent = '这将重置副本进度，但保留理智碎片数量。确定吗？';
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        document.getElementById('modalConfirmBtn').onclick = () => {
+            if (pendingAction === 'clearData') {
+                localStorage.clear();
+                localStorage.setItem('sanityShards', 100);
+                alert('数据已清除，游戏将重新开始。');
+            } else if (pendingAction === 'resetProgress') {
+                const shards = localStorage.getItem('sanityShards');
+                localStorage.clear();
+                localStorage.setItem('sanityShards', shards || 100);
+                alert('进度已重置。');
+            }
+            modal.style.display = 'none';
+            pendingAction = null;
+            // 延迟跳转回首页
+            setTimeout(() => { location.href = '../index.html'; }, 500);
+        };
+        
+        document.getElementById('modalCancelBtn').onclick = () => {
+            modal.style.display = 'none';
+            pendingAction = null;
+        };
+        
+        // 音效和震动开关（简单演示，实际功能可后续扩展）
+        let soundOn = true;
+        let vibrationOn = true;
+        
+        document.getElementById('soundToggle').onclick = function() {
+            soundOn = !soundOn;
+            this.textContent = soundOn ? '🔘 开启' : '🔘 关闭';
+        };
+        
+        document.getElementById('vibrationToggle').onclick = function() {
+            vibrationOn = !vibrationOn;
+            this.textContent = vibrationOn ? '🔘 开启' : '🔘 关闭';
+        };
+    </script>
+</body>
+</html>

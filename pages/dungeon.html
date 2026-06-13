@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>副本探索 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span class="status-time">🕸️ 00:00:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="dungeon-header">
+                <h2 class="glitch-text">[ 当前副本 ]</h2>
+                <div class="dungeon-name" id="currentDungeonName">加载中...</div>
+            </div>
+            <div class="dungeon-description" id="dungeonDesc">
+                加载中...
+            </div>
+
+            <div class="dungeon-action">
+                <button class="action-btn explore-btn" id="exploreBtn">🔍 探索房间</button>
+                <button class="action-btn escape-btn" id="escapeBtn">🏃 逃离回廊</button>
+            </div>
+
+            <div class="event-log">
+                <ul class="event-list" id="eventList">
+                    <li>暂无事件记录，开始探索吧...</li>
+                </ul>
+            </div>
+            
+            <button class="back-btn" onclick="location.href='../index.html'">← 返回副本列表</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        // 获取当前副本
+        let currentDungeon = { name: '废弃病栋', desc: '消毒水的气味混合着铁锈...', diff: '★☆☆☆☆' };
+        try {
+            const saved = localStorage.getItem('currentDungeon');
+            if (saved) {
+                currentDungeon = JSON.parse(saved);
+            }
+        } catch(e) {
+            console.error('解析副本数据失败:', e);
+        }
+        
+        document.getElementById('currentDungeonName').textContent = currentDungeon.name;
+        document.getElementById('dungeonDesc').textContent = currentDungeon.desc;
+        
+        // 更新理智碎片显示
+        function updateShards() {
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) {
+                shards = 100;
+                localStorage.setItem('sanityShards', shards);
+            }
+            document.getElementById('shardsValue').textContent = shards;
+            return parseInt(shards);
+        }
+        updateShards();
+        
+        // 添加事件记录
+        function addEvent(message) {
+            let eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            eventLog.unshift({ time: timeStr, message: message });
+            if (eventLog.length > 50) eventLog.pop();
+            localStorage.setItem('eventLog', JSON.stringify(eventLog));
+            
+            // 刷新显示
+            renderEventLog();
+        }
+        
+        // 渲染事件记录
+        function renderEventLog() {
+            const eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const eventList = document.getElementById('eventList');
+            if (eventList) {
+                if (eventLog.length === 0) {
+                    eventList.innerHTML = '<li>暂无事件记录，开始探索吧...</li>';
+                } else {
+                    eventList.innerHTML = eventLog.map(e => 
+                        `<li><span class="event-time">[${e.time}]</span> ${e.message}</li>`
+                    ).join('');
+                }
+            }
+        }
+        renderEventLog();
+        
+        // 探索事件库
+        const exploreEvents = [
+            '你推开了病房的门，病床上坐着一个穿白裙的女孩...她慢慢转过头。',
+            '走廊的灯光骤然熄灭，只有远处的应急灯忽明忽暗，你似乎听到了脚步声。',
+            '收音机突然传出刺耳的杂音，夹杂着“快逃...快逃...”的低语。',
+            '你在拐角处捡到一本日记，上面的字迹模糊，最后一页写着“它就在你身后”。',
+            '所有门都消失了，墙壁上出现了无数道抓痕。',
+            '一面破碎的镜子里，你看到自己身后站着另一个“你”。',
+            '空气中弥漫着腐臭味，地上有一行血字：回头。',
+            '一个护士的身影出现在走廊尽头，她缓缓向你走来...',
+            '你听到了孩子的笑声，但这里不应该有孩子。',
+            '墙上的画像眼睛似乎在动，当你转身时，画像里的人不见了。'
+        ];
+        
+        // 探索奖励
+        const exploreRewards = [
+            { type: 'shards', value: 5, msg: '你找到了5个理智碎片！' },
+            { type: 'shards', value: 3, msg: '你捡到了3个理智碎片' },
+            { type: 'item', name: '镇定剂', icon: '💊', desc: '恢复10理智碎片', msg: '你找到了一瓶镇定剂！' },
+            { type: 'item', name: '手摇手电筒', icon: '🔦', desc: '照亮黑暗', msg: '你捡到了一个手摇手电筒' },
+            { type: 'shards', value: 8, msg: '你发现了一个隐藏的宝箱，里面有8个理智碎片！' },
+            { type: 'none', msg: '你什么都没找到，但也没有遇到危险...' }
+        ];
+        
+        // 逃离事件
+        const escapeEvents = [
+            '你疯狂奔跑，似乎甩掉了那个东西，但理智值下降了一些。',
+            '你试图离开，却发现自己又回到了原点，回廊是无限的...',
+            '一扇铁门突然出现在墙上，你毫不犹豫钻了进去，暂时安全。',
+            '浓雾弥漫，你迷失了方向，但侥幸没遇到那个“它”。',
+            '你触碰了一个诡异的雕像，瞬间被传送到另一个诡异空间。',
+            '你躲在储物柜里，听到外面沉重的脚步声渐渐远去。',
+            '你闭上眼睛，再睁开时发现自己回到了入口处。'
+        ];
+        
+        // 探索按钮
+        document.getElementById('exploreBtn').addEventListener('click', () => {
+            // 随机事件
+            const eventMsg = exploreEvents[Math.floor(Math.random() * exploreEvents.length)];
+            addEvent(eventMsg);
+            
+            // 随机奖励
+            setTimeout(() => {
+                const reward = exploreRewards[Math.floor(Math.random() * exploreRewards.length)];
+                if (reward.type === 'shards') {
+                    let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+                    shards += reward.value;
+                    localStorage.setItem('sanityShards', shards);
+                    updateShards();
+                    addEvent(reward.msg);
+                } else if (reward.type === 'item') {
+                    let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                    backpack.push({ name: reward.name, icon: reward.icon, desc: reward.desc });
+                    localStorage.setItem('backpack', JSON.stringify(backpack));
+                    addEvent(reward.msg);
+                } else if (reward.type === 'none') {
+                    addEvent(reward.msg);
+                }
+            }, 100);
+        });
+        
+        // 逃离按钮
+        document.getElementById('escapeBtn').addEventListener('click', () => {
+            const eventMsg = escapeEvents[Math.floor(Math.random() * escapeEvents.length)];
+            addEvent(eventMsg);
+        });
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const timeElements = document.querySelectorAll('.status-time');
+            timeElements.forEach(el => {
+                if (el) el.textContent = `🕸️ ${hours}:${minutes}:${seconds}`;
+            });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        console.log('副本探索页已加载，当前副本:', currentDungeon);
+    </script>
+</body>
+</html>

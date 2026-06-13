@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>邮件详情 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span>🕸️ 03:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="post-detail" id="mailDetail">
+                <div style="text-align:center; color:#7a5a4a;">加载中...</div>
+            </div>
+            <button class="back-btn" onclick="history.back()">← 返回邮箱</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        const mails = {
+            1: { from: "系统", title: "欢迎来到无限游戏", content: "欢迎，新玩家。\n\n你已经进入了无限回廊，这是一个充满诅咒和谜题的世界。\n\n请记住：\n- 保持理智值不低于30%\n- 不要相信任何会说话的镜子\n- 如果你听到了敲门声，不要回应\n\n祝你好运。" },
+            2: { from: "???", title: "不要相信镜子里的自己", content: "我是谁不重要。\n\n重要的是：你在镜子里看到的那个“自己”，它不是你。\n\n它会模仿你的一切动作，但偶尔...它会慢半拍。\n\n当它不再模仿你的时候，快跑。" },
+            3: { from: "管理员", title: "理智值系统说明", content: "各位玩家：\n\n当理智值低于30%时，游戏场景会出现幻觉，包括但不限于：\n- 虚假的门和墙壁\n- 额外的怪物\n- 错误的方向指示\n\n建议通过商城购买镇定剂来维持理智。" },
+            4: { from: "预言家", title: "第7层的警告", content: "我看到了你们的未来。\n\n第7层有一个无法击败的怪物。不要试图与它战斗。\n\n唯一的办法是：不要回头，一直跑到看见白光。\n\n记住，不要回头。" }
+        };
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const mailId = urlParams.get('id');
+        const mail = mails[mailId];
+        const detailDiv = document.getElementById('mailDetail');
+        
+        if (mail) {
+            detailDiv.innerHTML = `
+                <h2>📧 来自「${mail.from}」</h2>
+                <div class="post-meta">标题：${mail.title}</div>
+                <div class="post-content">${mail.content.replace(/\n/g, '<br>')}</div>
+            `;
+        } else {
+            detailDiv.innerHTML = '<div style="text-align:center; color:#8a3a2a;">邮件不存在或已被删除</div>';
+        }
+    </script>
+</body>
+</html>

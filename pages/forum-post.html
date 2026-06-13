@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>帖子详情 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span>🕸️ 03:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="post-detail" id="postDetail">
+                <!-- 内容由JS动态生成 -->
+                <div style="text-align:center; color:#7a5a4a;">加载中...</div>
+            </div>
+            <button class="back-btn" onclick="history.back()">← 返回论坛</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        // 帖子数据
+        const posts = {
+            1: { title: "[ 求助 ] 如何驱散第四层的护士？", author: "匿名幸存者", time: "2024-01-15", content: "我在第四层遇到了一个护士，她一直跟着我，我尝试过用手电筒照她，但她只是消失了又出现。有人知道怎么彻底驱散她吗？\n\n在线等，挺急的，她就在门外..." },
+            2: { title: "[ 情报 ] 地下室保险箱密码线索", author: "解密者", time: "2024-01-14", content: "经过多次死亡，我终于破解了地下室保险箱的密码：0417。\n\n里面有一把生锈的钥匙，可以用来打开第三层的某个房间。" },
+            3: { title: "[ 诅咒 ] 不要凝视镜子超过10秒", author: "过来人", time: "2024-01-13", content: "血的教训！千万不要在任何镜子里凝视自己超过10秒。\n\n你会看到另一个自己对你微笑，然后... 我不想回忆了。现在我的游戏里多了一个永远跟着我的影子。" },
+            4: { title: "[ 攻略 ] 无限回廊的10个隐藏房间", author: "探路者", time: "2024-01-12", content: "1. 第三层左转遇到死胡同后右转3次\n2. 第五层楼梯间倒数第7级台阶跳下\n3. 地下室最里面的墙壁用锤子敲5下\n...\n（回复可见剩余7个）" },
+            5: { title: "[ 警告 ] 理智值低于20%时看到的东西不可信", author: "心理学家", time: "2024-01-11", content: "当你的理智值低于20%时，游戏会开始欺骗你。\n\n你以为的门可能是墙，你以为的安全区域可能是陷阱。\n\n建议：保持理智值，或者完全不信任任何视觉信息。" }
+        };
+
+        // 获取URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+        
+        const post = posts[postId];
+        const detailDiv = document.getElementById('postDetail');
+        
+        if (post) {
+            detailDiv.innerHTML = `
+                <h2>${post.title}</h2>
+                <div class="post-meta">👤 ${post.author} | 🕐 ${post.time}</div>
+                <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+            `;
+        } else {
+            detailDiv.innerHTML = '<div style="text-align:center; color:#8a3a2a;">帖子不存在或已被删除</div>';
+        }
+    </script>
+</body>
+</html>

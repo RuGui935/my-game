@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>个人资料 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span>🕸️ 03:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar"></div>
+                <div class="player-stats">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="list-container">
+                <h3 class="section-title">👤 个人档案</h3>
+                <ul class="item-list" style="list-style:none;">
+                    <li><span>🎮 玩家编号</span><span>011</span></li>
+                    <li><span>🏆 通关副本</span><span>1 / 4</span></li>
+                    <li><span>📜 探索次数</span><span id="exploreCount">0</span></li>
+                    <li><span>💎 理智碎片</span><span id="profileShards">0</span></li>
+                    <li><span>👥 同行者</span><span>1</span></li>
+                </ul>
+            </div>
+            
+            <div class="list-container" style="margin-top: 20px;">
+                <h3 class="section-title">📊 统计数据</h3>
+                <ul class="item-list" style="list-style:none;">
+                    <li><span>⚔️ 总探索事件</span><span id="totalEvents">0</span></li>
+                    <li><span>💀 死亡次数</span><span>3</span></li>
+                    <li><span>🔓 解锁成就</span><span>2 / 10</span></li>
+                </ul>
+            </div>
+            
+            <button class="action-btn" onclick="location.href='../index.html'" style="margin-top: 20px;">← 返回副本</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        const eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+        const shards = localStorage.getItem('sanityShards') || 100;
+        
+        document.getElementById('exploreCount').textContent = eventLog.length;
+        document.getElementById('totalEvents').textContent = eventLog.length;
+        document.getElementById('profileShards').textContent = shards;
+    </script>
+</body>
+</html>

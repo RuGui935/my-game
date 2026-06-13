@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>邮箱 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span>🕸️ 03:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="list-container">
+                <h3 class="section-title">📬 染血的邮箱</h3>
+                <ul class="mail-list" id="mailList">
+                    <li onclick="location.href='mail-detail.html?id=1'">
+                        <span>📩 来自「系统」：欢迎来到无限游戏。</span>
+                        <span class="mail-date">刚刚</span>
+                    </li>
+                    <li onclick="location.href='mail-detail.html?id=2'">
+                        <span>🕯️ 来自「???」：不要相信镜子里的自己。</span>
+                        <span class="mail-date">1小时前</span>
+                    </li>
+                    <li onclick="location.href='mail-detail.html?id=3'">
+                        <span>📜 来自「管理员」：理智值低于30%时会有危险。</span>
+                        <span class="mail-date">昨天</span>
+                    </li>
+                    <li onclick="location.href='mail-detail.html?id=4'">
+                        <span>⚰️ 来自「预言家」：第7层有一个无法击败的怪物。</span>
+                        <span class="mail-date">3天前</span>
+                    </li>
+                </ul>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item active" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+    <script src="../script.js"></script>
+</body>
+</html>

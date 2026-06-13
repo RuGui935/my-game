@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>商城 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span class="status-time">🕸️ 00:00:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="list-container">
+                <h3 class="section-title">🕯️ 黑市商人</h3>
+                <ul class="item-list" id="shopItems">
+                    <li>
+                        <span>⚰️ 生锈的十字架</span>
+                        <span><span class="price">15 碎片</span> <button class="buy-btn" data-item="生锈的十字架" data-price="15" data-icon="⚰️" data-desc="驱散低语，暂时安全">购买</button></span>
+                    </li>
+                    <li>
+                        <span>🔦 手摇手电筒</span>
+                        <span><span class="price">8 碎片</span> <button class="buy-btn" data-item="手摇手电筒" data-price="8" data-icon="🔦" data-desc="照亮黑暗，探索更安全">购买</button></span>
+                    </li>
+                    <li>
+                        <span>🪨 神秘符文石</span>
+                        <span><span class="price">30 碎片</span> <button class="buy-btn" data-item="神秘符文石" data-price="30" data-icon="🪨" data-desc="使用后获得理智碎片">购买</button></span>
+                    </li>
+                    <li>
+                        <span>💊 镇定剂</span>
+                        <span><span class="price">12 碎片</span> <button class="buy-btn" data-item="镇定剂" data-price="12" data-icon="💊" data-desc="恢复10理智碎片">购买</button></span>
+                    </li>
+                    <li>
+                        <span>📿 护身符</span>
+                        <span><span class="price">50 碎片</span> <button class="buy-btn" data-item="护身符" data-price="50" data-icon="📿" data-desc="下次探索必定获得稀有物品">购买</button></span>
+                    </li>
+                </ul>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item active" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function updateShards() {
+            const shards = localStorage.getItem('sanityShards') || 100;
+            document.getElementById('shardsValue').textContent = shards;
+        }
+        updateShards();
+        
+        // 购买功能 - 确保添加到背包
+document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const itemName = btn.getAttribute('data-item');
+        const price = parseInt(btn.getAttribute('data-price'));
+        const icon = btn.getAttribute('data-icon');
+        const desc = btn.getAttribute('data-desc');
+        
+        let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+        if (shards >= price) {
+            shards -= price;
+            localStorage.setItem('sanityShards', shards);
+            updateShards();
+            
+            // 统一背包存储格式
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            backpack.push({ name: itemName, icon: icon, desc: desc });
+            localStorage.setItem('backpack', JSON.stringify(backpack));
+            
+            console.log('购买成功，当前背包:', backpack);
+            
+            // 事件记录
+            let eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            eventLog.unshift({ time: timeStr, message: `购买了 ${itemName}，消耗 ${price} 理智碎片` });
+            if (eventLog.length > 50) eventLog.pop();
+            localStorage.setItem('eventLog', JSON.stringify(eventLog));
+            
+            alert(`购买成功！获得：${itemName}\n已放入背包`);
+        } else {
+            alert(`理智碎片不足！需要 ${price} 理智碎片`);
+        }
+    });
+});
+        
+        // 监听storage变化
+        window.addEventListener('storage', () => updateShards());
+    </script>
+</body>
+</html>

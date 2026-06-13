@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>奖池 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span class="status-time">🕸️ 00:00:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="list-container">
+                <h3 class="section-title">🎲 命运的轮盘 · 翻牌抽奖</h3>
+                
+                <div class="lottery-game">
+                    <p class="lottery-desc">选择一张牌，消耗 5 理智碎片。每张牌背后都有不同的奖励或诅咒。</p>
+                    
+                    <div class="card-grid" id="cardGrid">
+                        <div class="lottery-card" data-index="0">❓</div>
+                        <div class="lottery-card" data-index="1">❓</div>
+                        <div class="lottery-card" data-index="2">❓</div>
+                        <div class="lottery-card" data-index="3">❓</div>
+                        <div class="lottery-card" data-index="4">❓</div>
+                        <div class="lottery-card" data-index="5">❓</div>
+                    </div>
+                    
+                    <div class="lottery-result" id="lotteryResult">
+                        点击上面的卡片开始抽奖（消耗5理智碎片）
+                    </div>
+                    
+                    <button class="reset-lottery-btn" id="resetLotteryBtn">🔄 重置抽奖</button>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item active" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        // 奖品列表
+        const prizes = [
+            { name: '生锈的护符', type: 'item', icon: '⚰️', desc: '一个古老的护符，散发着不祥的气息' },
+            { name: '诅咒绷带', type: 'item', icon: '🕸️', desc: '被诅咒的绷带，使用后...不知道会发生什么' },
+            { name: '灵视药水', type: 'item', icon: '🔮', desc: '暂时能看到隐藏的东西' },
+            { name: '残缺的笔记', type: 'item', icon: '📜', desc: '上面记载着一些秘密' },
+            { name: '理智碎片 x10', type: 'shards', icon: '🧠', desc: '获得10个理智碎片', value: 10 },
+            { name: '邪神凝视', type: 'curse', icon: '👁️', desc: '你感受到被注视...下次探索会遭遇危险' }
+        ];
+        
+        let currentCards = [];
+        let revealed = [false, false, false, false, false, false];
+        let canPlay = true;
+        
+        // 更新理智碎片显示
+        function updateShards() {
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) {
+                shards = 100;
+                localStorage.setItem('sanityShards', shards);
+            }
+            document.getElementById('shardsValue').textContent = shards;
+            return parseInt(shards);
+        }
+        updateShards();
+        
+        // 添加事件记录
+        function addEvent(message) {
+            let eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            eventLog.unshift({ time: timeStr, message: message });
+            if (eventLog.length > 50) eventLog.pop();
+            localStorage.setItem('eventLog', JSON.stringify(eventLog));
+        }
+        
+        // 随机打乱数组
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        // 初始化卡片
+        function initCards() {
+            let selectedPrizes = [];
+            for (let i = 0; i < 6; i++) {
+                const randomPrize = { ...prizes[Math.floor(Math.random() * prizes.length)] };
+                selectedPrizes.push(randomPrize);
+            }
+            currentCards = shuffleArray(selectedPrizes);
+            revealed = [false, false, false, false, false, false];
+            canPlay = true;
+            
+            // 重置UI
+            const cards = document.querySelectorAll('.lottery-card');
+            cards.forEach((card, idx) => {
+                card.textContent = '❓';
+                card.classList.remove('revealed', 'selected');
+            });
+            document.getElementById('lotteryResult').innerHTML = '点击上面的卡片开始抽奖（消耗5理智碎片）';
+        }
+        
+        // 翻开卡片
+        function revealCard(index) {
+            if (!canPlay) {
+                document.getElementById('lotteryResult').innerHTML = '本轮抽奖已结束，请点击重置按钮开始新一轮。';
+                return;
+            }
+            if (revealed[index]) {
+                document.getElementById('lotteryResult').innerHTML = '这张牌已经翻开过了！';
+                return;
+            }
+            
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+            if (shards < 5) {
+                document.getElementById('lotteryResult').innerHTML = '理智碎片不足！需要5个理智碎片。';
+                return;
+            }
+            
+            // 扣费
+            shards -= 5;
+            localStorage.setItem('sanityShards', shards);
+            updateShards();
+            
+            // 翻开卡片
+            const prize = currentCards[index];
+            const card = document.querySelector(`.lottery-card[data-index="${index}"]`);
+            card.textContent = prize.icon;
+            card.classList.add('revealed');
+            revealed[index] = true;
+            
+            // 处理奖励
+            let resultMsg = '';
+            
+            if (prize.type === 'shards') {
+                let currentShards = parseInt(localStorage.getItem('sanityShards') || '100');
+                currentShards += prize.value;
+                localStorage.setItem('sanityShards', currentShards);
+                updateShards();
+                resultMsg = `🎉 恭喜！你获得了 ${prize.name}！`;
+                addEvent(`抽奖获得了：${prize.name}`);
+                
+            } else if (prize.type === 'item') {
+                let backpack = localStorage.getItem('backpack');
+                let items = [];
+                if (backpack && backpack !== '[]' && backpack !== 'null') {
+                    try {
+                        items = JSON.parse(backpack);
+                    } catch(e) {
+                        items = [];
+                    }
+                }
+                items.push({ name: prize.name, icon: prize.icon, desc: prize.desc });
+                localStorage.setItem('backpack', JSON.stringify(items));
+                console.log('抽奖获得物品，当前背包:', items);
+                resultMsg = `🎁 恭喜！你获得了 ${prize.name}！已放入背包。`;
+                addEvent(`抽奖获得了：${prize.name}`);
+                
+            } else if (prize.type === 'curse') {
+                resultMsg = `⚠️ 不幸！你触发了 ${prize.name}！${prize.desc}`;
+                addEvent(`抽奖触发了诅咒：${prize.name}`);
+            }
+            
+            document.getElementById('lotteryResult').innerHTML = resultMsg;
+            canPlay = false;
+        }
+        
+        // 绑定卡片点击事件
+        function bindCardEvents() {
+            document.querySelectorAll('.lottery-card').forEach(card => {
+                card.removeEventListener('click', card.clickHandler);
+                const handler = () => {
+                    const index = parseInt(card.getAttribute('data-index'));
+                    revealCard(index);
+                };
+                card.addEventListener('click', handler);
+                card.clickHandler = handler;
+            });
+        }
+        
+        // 重置按钮
+        document.getElementById('resetLotteryBtn').addEventListener('click', () => {
+            initCards();
+            bindCardEvents();
+        });
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const timeElements = document.querySelectorAll('.status-time');
+            timeElements.forEach(el => {
+                if (el) el.textContent = `🕸️ ${hours}:${minutes}:${seconds}`;
+            });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // 初始化
+        initCards();
+        bindCardEvents();
+        
+        console.log('抽奖页面已加载');
+    </script>
+</body>
+</html>
