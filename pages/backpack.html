@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>背包 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar">
+                <span>⚠️ 信号丢失</span>
+                <span class="status-time">🕸️ 00:00:00</span>
+                <span>🔋 诅咒</span>
+            </div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='profile.html'"></div>
+                <div class="player-stats" onclick="location.href='profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='./settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="list-container">
+                <h3 class="section-title">🎒 我的背包</h3>
+                <div id="backpackContent">
+                    加载中...
+                </div>
+            </div>
+            
+            <button class="back-btn" onclick="location.href='../index.html'">← 返回副本</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        // 更新理智碎片显示
+        function updateShards() {
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) {
+                shards = 100;
+                localStorage.setItem('sanityShards', shards);
+            }
+            document.getElementById('shardsValue').textContent = shards;
+        }
+        updateShards();
+
+        // 添加事件记录
+        function addEventToLog(message) {
+            let eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            eventLog.unshift({ time: timeStr, message: message });
+            if (eventLog.length > 50) eventLog.pop();
+            localStorage.setItem('eventLog', JSON.stringify(eventLog));
+        }
+
+        // 渲染背包
+        function renderBackpack() {
+            let backpack = localStorage.getItem('backpack');
+            console.log('原始backpack数据:', backpack);
+            
+            if (!backpack || backpack === '[]' || backpack === 'null') {
+                document.getElementById('backpackContent').innerHTML = '<div class="empty-backpack">🎒 背包空空如也<br>去商城购买或探索副本获取物品吧</div>';
+                return;
+            }
+            
+            try {
+                let items = JSON.parse(backpack);
+                console.log('解析后的items:', items);
+                
+                if (!items || items.length === 0) {
+                    document.getElementById('backpackContent').innerHTML = '<div class="empty-backpack">🎒 背包空空如也<br>去商城购买或探索副本获取物品吧</div>';
+                    return;
+                }
+                
+                let html = '<div class="backpack-grid">';
+                items.forEach((item, index) => {
+                    // 兼容不同的字段名
+                    const itemName = item.name || item.itemName || '未知物品';
+                    const itemIcon = item.icon || '📦';
+                    const itemDesc = item.desc || item.description || '一个神秘物品';
+                    
+                    html += `
+                        <div class="backpack-item">
+                            <div class="backpack-item-icon">${itemIcon}</div>
+                            <div class="backpack-item-info">
+                                <div class="backpack-item-name">${itemName}</div>
+                                <div class="backpack-item-desc">${itemDesc}</div>
+                            </div>
+                            <button class="use-btn" data-index="${index}" data-name="${itemName}" data-icon="${itemIcon}" data-desc="${itemDesc}">使用</button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                document.getElementById('backpackContent').innerHTML = html;
+                
+                // 绑定使用按钮
+                document.querySelectorAll('.use-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.getAttribute('data-index'));
+                        const itemName = btn.getAttribute('data-name');
+                        useItem(index, itemName);
+                    });
+                });
+            } catch(e) {
+                console.error('解析背包数据出错:', e);
+                document.getElementById('backpackContent').innerHTML = '<div class="empty-backpack">数据出错，请重新购买物品</div>';
+                // 清空错误数据
+                localStorage.setItem('backpack', '[]');
+            }
+        }
+        
+        // 使用物品
+        function useItem(index, itemName) {
+            let items = JSON.parse(localStorage.getItem('backpack') || '[]');
+            if (index >= items.length) return;
+            
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+            let message = '';
+            
+            if (itemName === '镇定剂' || itemName.includes('镇定剂')) {
+                shards += 10;
+                message = `使用了镇定剂，理智碎片 +10`;
+                alert(`使用了镇定剂，获得 10 理智碎片`);
+            } else if (itemName === '护身符' || itemName.includes('护身符')) {
+                message = `使用了护身符，下次探索必定获得稀有物品`;
+                alert(`护身符已生效，下次探索时会有好运！`);
+            } else if (itemName === '手摇手电筒' || itemName.includes('手电筒')) {
+                message = `使用了手摇手电筒，周围亮了一些...`;
+                alert(`手电筒照亮了周围，但你感觉有什么东西在暗处移动`);
+            } else if (itemName === '生锈的十字架' || itemName.includes('十字架')) {
+                message = `你拿出了生锈的十字架，周围的低语声暂时消失了`;
+                alert(`十字架发出微弱的光芒，你感到一阵安心`);
+            } else if (itemName === '神秘符文石' || itemName.includes('符文石')) {
+                shards += 5;
+                message = `符文石上的符号开始发光... 理智碎片 +5`;
+                alert(`符文石碎裂，你获得了 5 理智碎片`);
+            } else if (itemName === '⚰️ 生锈的护符' || itemName.includes('护符')) {
+                message = `你佩戴了生锈的护符，感到一丝寒意`;
+                alert(`护符上似乎有什么东西在低语...`);
+            } else if (itemName === '🔮 灵视药水' || itemName.includes('灵视')) {
+                shards -= 5;
+                message = `你喝下了灵视药水，看到了不该看到的东西... 理智碎片 -5`;
+                alert(`你看到了墙壁后面的怪物！理智碎片 -5`);
+            } else {
+                alert(`这个物品暂时无法使用`);
+                return;
+            }
+            
+            // 更新理智碎片
+            localStorage.setItem('sanityShards', shards);
+            updateShards();
+            
+            // 添加事件记录
+            addEventToLog(message);
+            
+            // 从背包移除
+            items.splice(index, 1);
+            localStorage.setItem('backpack', JSON.stringify(items));
+            
+            // 重新渲染
+            renderBackpack();
+        }
+        
+        // 页面加载时渲染
+        renderBackpack();
+        
+        // 监听存储变化
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'backpack' || e.key === 'sanityShards') {
+                updateShards();
+                renderBackpack();
+            }
+        });
+        
+        // 添加控制台调试信息
+        console.log('背包页面已加载，当前背包:', localStorage.getItem('backpack'));
+    </script>
+</body>
+</html>
