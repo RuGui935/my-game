@@ -3,76 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>无限回廊 | 恐怖副本</title>
+    <title>无限回廊 | 副本列表</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
-        <!-- 顶部状态栏与玩家信息 -->
         <header class="top-bar">
             <div class="status-bar">
                 <span>⚠️ 信号丢失</span>
-                <span>🕸️ 03:00</span>
+                <span class="status-time">🕸️ 00:00:00</span>
                 <span>🔋 诅咒</span>
             </div>
             <div class="player-info">
-                <div class="player-avatar"></div>
-                <div class="player-stats">
+                <div class="player-avatar" onclick="location.href='pages/profile.html'"></div>
+                <div class="player-stats" onclick="location.href='pages/profile.html'">
                     <div class="player-name">▶ 玩家「125」</div>
                     <div class="player-id">编号：011 | 理智值：43%</div>
                 </div>
-                <div class="settings-icon">⚙️</div>
+                <div class="settings-icon" onclick="location.href='pages/settings.html'">⚙️</div>
             </div>
         </header>
 
-        <!-- 主要内容：副本界面 -->
         <main class="main-content">
-            <div class="dungeon-header">
-                <h2 class="glitch-text">[ 当前副本 ]</h2>
-                <div class="dungeon-name">废弃病栋 · 无限回廊</div>
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='pages/backpack.html'">🎒 背包</span>
             </div>
-            <div class="dungeon-description">
-                消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你...
-            </div>
-            <div class="dungeon-action">
-                <button class="action-btn explore-btn">探索房间</button>
-                <button class="action-btn escape-btn">逃离回廊</button>
-            </div>
-            <div class="event-log">
-                <p>📜 事件记录：你踏入了病栋，手电筒开始闪烁。</p>
+
+            <div class="dungeon-list">
+                <h3 class="section-title">📖 可选副本</h3>
+                
+                <div class="dungeon-item" data-dungeon="废弃病栋" data-desc="消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你..." data-diff="★☆☆☆☆">
+                    <h4>废弃病栋</h4>
+                    <p>难度：★☆☆☆☆ | 推荐等级：1</p>
+                </div>
+                
+                <div class="dungeon-item locked" data-dungeon="血月庭院" data-desc="血色的月光洒在枯萎的玫瑰园中，雕像的眼睛似乎在跟随你。" data-diff="★★☆☆☆">
+                    <h4>血月庭院 🔒</h4>
+                    <p>难度：★★☆☆☆ | 需通关废弃病栋</p>
+                </div>
+                
+                <div class="dungeon-item locked" data-dungeon="深渊教堂" data-desc="彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲。" data-diff="★★★☆☆">
+                    <h4>深渊教堂 🔒</h4>
+                    <p>难度：★★★☆☆ | 需通关血月庭院</p>
+                </div>
+                
+                <div class="dungeon-item locked" data-dungeon="诅咒矿井" data-desc="黑暗的深处传来镐子敲击的声音，但矿井早已荒废多年。" data-diff="★★★★☆">
+                    <h4>诅咒矿井 🔒</h4>
+                    <p>难度：★★★★☆ | 需通关深渊教堂</p>
+                </div>
             </div>
         </main>
 
-        <!-- 底部导航栏：点击跳转到对应的独立页面 -->
         <nav class="bottom-nav">
-            <div class="nav-item" onclick="location.href='pages/forum.html'">
-                <span class="nav-icon">💬</span>
-                <span class="nav-label">论坛</span>
-            </div>
-            <div class="nav-item active" onclick="location.href='index.html'">
-                <span class="nav-icon">📖</span>
-                <span class="nav-label">副本</span>
-            </div>
-            <div class="nav-item" onclick="location.href='pages/shop.html'">
-                <span class="nav-icon">🛒</span>
-                <span class="nav-label">商城</span>
-            </div>
-            <div class="nav-item" onclick="location.href='pages/lottery.html'">
-                <span class="nav-icon">🎁</span>
-                <span class="nav-label">奖池</span>
-            </div>
-            <div class="nav-item" onclick="location.href='pages/mail.html'">
-                <span class="nav-icon">✉️</span>
-                <span class="nav-label">邮箱</span>
-            </div>
-            <div class="nav-item" onclick="location.href='pages/friend.html'">
-                <span class="nav-icon">👥</span>
-                <span class="nav-label">好友</span>
-            </div>
+            <div class="nav-item" onclick="location.href='pages/forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item active" onclick="location.href='index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='pages/shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='pages/lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='pages/mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='pages/friend.html'">👥<span class="nav-label">好友</span></div>
         </nav>
     </div>
 
-    <script src="script.js"></script>
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>进入副本</h3>
+            <p id="modalDungeonDesc">确定要进入这个副本吗？</p>
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn">进入</button>
+                <button id="modalCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新理智碎片显示
+        function updateShards() {
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) {
+                shards = 100;
+                localStorage.setItem('sanityShards', shards);
+            }
+            document.getElementById('shardsValue').textContent = shards;
+        }
+        updateShards();
+
+        // 获取副本进度
+        let unlockedDungeons = JSON.parse(localStorage.getItem('unlockedDungeons') || '["废弃病栋"]');
+        
+        // 副本数据
+        const dungeonsData = {
+            '废弃病栋': {
+                name: '废弃病栋',
+                desc: '消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你...',
+                diff: '★☆☆☆☆'
+            },
+            '血月庭院': {
+                name: '血月庭院',
+                desc: '血色的月光洒在枯萎的玫瑰园中，雕像的眼睛似乎在跟随你。',
+                diff: '★★☆☆☆'
+            },
+            '深渊教堂': {
+                name: '深渊教堂',
+                desc: '彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲。',
+                diff: '★★★☆☆'
+            },
+            '诅咒矿井': {
+                name: '诅咒矿井',
+                desc: '黑暗的深处传来镐子敲击的声音，但矿井早已荒废多年。',
+                diff: '★★★★☆'
+            }
+        };
+        
+        // 更新副本锁定状态
+        function updateDungeonLocks() {
+            const dungeons = document.querySelectorAll('.dungeon-item');
+            dungeons.forEach(item => {
+                const name = item.getAttribute('data-dungeon');
+                if (unlockedDungeons.includes(name)) {
+                    item.classList.remove('locked');
+                    const h4 = item.querySelector('h4');
+                    if (h4) h4.innerHTML = name;
+                } else {
+                    item.classList.add('locked');
+                    const h4 = item.querySelector('h4');
+                    if (h4 && !h4.innerHTML.includes('🔒')) {
+                        h4.innerHTML = `${name} 🔒`;
+                    }
+                }
+            });
+        }
+        updateDungeonLocks();
+        
+        // 副本点击事件
+        const modal = document.getElementById('confirmModal');
+        let selectedDungeon = null;
+        
+        document.querySelectorAll('.dungeon-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // 检查是否锁定
+                if (item.classList.contains('locked')) {
+                    alert('此副本尚未解锁！请先通关前置副本。');
+                    return;
+                }
+                
+                const dungeonName = item.getAttribute('data-dungeon');
+                const dungeonData = dungeonsData[dungeonName];
+                
+                if (dungeonData) {
+                    selectedDungeon = dungeonData;
+                    document.getElementById('modalDungeonDesc').innerHTML = 
+                        `📖 ${selectedDungeon.name}<br><br>${selectedDungeon.desc}<br><br>难度：${selectedDungeon.diff}`;
+                    modal.style.display = 'flex';
+                } else {
+                    console.error('未找到副本数据:', dungeonName);
+                    alert('数据错误，请刷新页面重试');
+                }
+            });
+        });
+        
+        // 确认进入副本
+        document.getElementById('modalConfirmBtn').onclick = () => {
+            if (selectedDungeon) {
+                localStorage.setItem('currentDungeon', JSON.stringify(selectedDungeon));
+                window.location.href = 'pages/dungeon.html';
+            }
+            modal.style.display = 'none';
+        };
+        
+        // 取消
+        document.getElementById('modalCancelBtn').onclick = () => {
+            modal.style.display = 'none';
+            selectedDungeon = null;
+        };
+        
+        // 点击模态框背景关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                selectedDungeon = null;
+            }
+        });
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const timeElements = document.querySelectorAll('.status-time');
+            timeElements.forEach(el => {
+                if (el) el.textContent = `🕸️ ${hours}:${minutes}:${seconds}`;
+            });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        console.log('副本列表页已加载');
+    </script>
 </body>
 </html>
