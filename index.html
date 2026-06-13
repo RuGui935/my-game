@@ -36,24 +36,28 @@
             <div class="dungeon-list">
                 <h3 class="section-title">📖 可选副本</h3>
                 
-                <div class="dungeon-item" data-dungeon="废弃病栋" data-desc="消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你..." data-diff="★☆☆☆☆">
-                    <h4>废弃病栋</h4>
+                <!-- 邮轮副本 -->
+                <div class="dungeon-item" data-dungeon="幽灵邮轮" data-desc="一艘失踪三十年的豪华邮轮突然出现在海面上，甲板上空无一人，但宴会厅里传来悠扬的音乐..." data-diff="★☆☆☆☆">
+                    <h4>幽灵邮轮</h4>
                     <p>难度：★☆☆☆☆ | 推荐等级：1</p>
                 </div>
                 
-                <div class="dungeon-item locked" data-dungeon="血月庭院" data-desc="血色的月光洒在枯萎的玫瑰园中，雕像的眼睛似乎在跟随你。" data-diff="★★☆☆☆">
-                    <h4>血月庭院 🔒</h4>
-                    <p>难度：★★☆☆☆ | 需通关废弃病栋</p>
+                <!-- 迷雾森林副本 -->
+                <div class="dungeon-item" data-dungeon="迷雾森林" data-desc="浓雾笼罩的古老森林，树木会移动，小径会改变方向。远处隐约可见一座小木屋..." data-diff="★★☆☆☆">
+                    <h4>迷雾森林</h4>
+                    <p>难度：★★☆☆☆ | 推荐等级：2</p>
                 </div>
                 
-                <div class="dungeon-item locked" data-dungeon="深渊教堂" data-desc="彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲。" data-diff="★★★☆☆">
-                    <h4>深渊教堂 🔒</h4>
-                    <p>难度：★★★☆☆ | 需通关血月庭院</p>
+                <!-- 废弃矿井副本 -->
+                <div class="dungeon-item" data-dungeon="废弃矿井" data-desc="黑暗的矿道深处传来镐子敲击的声音，但矿井早已荒废多年。空气中弥漫着硫磺味..." data-diff="★★★☆☆">
+                    <h4>废弃矿井</h4>
+                    <p>难度：★★★☆☆ | 推荐等级：3</p>
                 </div>
                 
-                <div class="dungeon-item locked" data-dungeon="诅咒矿井" data-desc="黑暗的深处传来镐子敲击的声音，但矿井早已荒废多年。" data-diff="★★★★☆">
-                    <h4>诅咒矿井 🔒</h4>
-                    <p>难度：★★★★☆ | 需通关深渊教堂</p>
+                <!-- 血月教堂副本 -->
+                <div class="dungeon-item" data-dungeon="血月教堂" data-desc="血色的月光洒在哥特式教堂上，彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲..." data-diff="★★★★☆">
+                    <h4>血月教堂</h4>
+                    <p>难度：★★★★☆ | 推荐等级：4</p>
                 </div>
             </div>
         </main>
@@ -80,7 +84,6 @@
     </div>
 
     <script>
-        // 更新理智碎片显示
         function updateShards() {
             let shards = localStorage.getItem('sanityShards');
             if (shards === null) {
@@ -91,66 +94,36 @@
         }
         updateShards();
 
-        // 获取副本进度
-        let unlockedDungeons = JSON.parse(localStorage.getItem('unlockedDungeons') || '["废弃病栋"]');
-        
-        // 副本数据
+        // 所有副本都解锁
         const dungeonsData = {
-            '废弃病栋': {
-                name: '废弃病栋',
-                desc: '消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你...',
+            '幽灵邮轮': {
+                name: '幽灵邮轮',
+                desc: '一艘失踪三十年的豪华邮轮突然出现在海面上，甲板上空无一人，但宴会厅里传来悠扬的音乐...',
                 diff: '★☆☆☆☆'
             },
-            '血月庭院': {
-                name: '血月庭院',
-                desc: '血色的月光洒在枯萎的玫瑰园中，雕像的眼睛似乎在跟随你。',
+            '迷雾森林': {
+                name: '迷雾森林',
+                desc: '浓雾笼罩的古老森林，树木会移动，小径会改变方向。远处隐约可见一座小木屋...',
                 diff: '★★☆☆☆'
             },
-            '深渊教堂': {
-                name: '深渊教堂',
-                desc: '彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲。',
+            '废弃矿井': {
+                name: '废弃矿井',
+                desc: '黑暗的矿道深处传来镐子敲击的声音，但矿井早已荒废多年。空气中弥漫着硫磺味...',
                 diff: '★★★☆☆'
             },
-            '诅咒矿井': {
-                name: '诅咒矿井',
-                desc: '黑暗的深处传来镐子敲击的声音，但矿井早已荒废多年。',
+            '血月教堂': {
+                name: '血月教堂',
+                desc: '血色的月光洒在哥特式教堂上，彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲...',
                 diff: '★★★★☆'
             }
         };
         
-        // 更新副本锁定状态
-        function updateDungeonLocks() {
-            const dungeons = document.querySelectorAll('.dungeon-item');
-            dungeons.forEach(item => {
-                const name = item.getAttribute('data-dungeon');
-                if (unlockedDungeons.includes(name)) {
-                    item.classList.remove('locked');
-                    const h4 = item.querySelector('h4');
-                    if (h4) h4.innerHTML = name;
-                } else {
-                    item.classList.add('locked');
-                    const h4 = item.querySelector('h4');
-                    if (h4 && !h4.innerHTML.includes('🔒')) {
-                        h4.innerHTML = `${name} 🔒`;
-                    }
-                }
-            });
-        }
-        updateDungeonLocks();
-        
-        // 副本点击事件
         const modal = document.getElementById('confirmModal');
         let selectedDungeon = null;
         
         document.querySelectorAll('.dungeon-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
-                
-                // 检查是否锁定
-                if (item.classList.contains('locked')) {
-                    alert('此副本尚未解锁！请先通关前置副本。');
-                    return;
-                }
                 
                 const dungeonName = item.getAttribute('data-dungeon');
                 const dungeonData = dungeonsData[dungeonName];
@@ -161,13 +134,11 @@
                         `📖 ${selectedDungeon.name}<br><br>${selectedDungeon.desc}<br><br>难度：${selectedDungeon.diff}`;
                     modal.style.display = 'flex';
                 } else {
-                    console.error('未找到副本数据:', dungeonName);
                     alert('数据错误，请刷新页面重试');
                 }
             });
         });
         
-        // 确认进入副本
         document.getElementById('modalConfirmBtn').onclick = () => {
             if (selectedDungeon) {
                 localStorage.setItem('currentDungeon', JSON.stringify(selectedDungeon));
@@ -176,13 +147,11 @@
             modal.style.display = 'none';
         };
         
-        // 取消
         document.getElementById('modalCancelBtn').onclick = () => {
             modal.style.display = 'none';
             selectedDungeon = null;
         };
         
-        // 点击模态框背景关闭
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
@@ -190,7 +159,6 @@
             }
         });
         
-        // 更新时间
         function updateTime() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
@@ -203,8 +171,6 @@
         }
         setInterval(updateTime, 1000);
         updateTime();
-        
-        console.log('副本列表页已加载');
     </script>
 </body>
 </html>
