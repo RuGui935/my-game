@@ -297,28 +297,17 @@ body {
     background: #5a3a2a;
 }
 
-/* 修复文字显示问题 */
-.bottom-nav .nav-label {
-    color: #dbbc8c;  /* 让底部文字明显一些 */
-    text-shadow: 0 0 2px #000;
+/* 适配全面屏手机的底部安全区域 */
+.bottom-nav {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
-.page {
-    background: rgba(20, 15, 15, 0.9);
-    min-height: 400px;
+.app-container {
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-.list-container {
-    background: rgba(25, 18, 18, 0.95);
-}
-
-.post-list li, .item-list li, .mail-list li {
-    color: #cbab8b;
-    background: rgba(0,0,0,0.3);
-    margin: 4px 0;
-}
-
-.section-title {
-    color: #e8a87c;
-    border-bottom: 1px solid #8a3a2a;
+/* 让主要内容区域不要被底部导航遮住 */
+.main-content {
+    margin-bottom: 0;
+    padding-bottom: 10px;
 }
