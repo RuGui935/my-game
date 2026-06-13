@@ -296,3 +296,29 @@ body {
 .main-content::-webkit-scrollbar-thumb {
     background: #5a3a2a;
 }
+
+/* 修复文字显示问题 */
+.bottom-nav .nav-label {
+    color: #dbbc8c;  /* 让底部文字明显一些 */
+    text-shadow: 0 0 2px #000;
+}
+
+.page {
+    background: rgba(20, 15, 15, 0.9);
+    min-height: 400px;
+}
+
+.list-container {
+    background: rgba(25, 18, 18, 0.95);
+}
+
+.post-list li, .item-list li, .mail-list li {
+    color: #cbab8b;
+    background: rgba(0,0,0,0.3);
+    margin: 4px 0;
+}
+
+.section-title {
+    color: #e8a87c;
+    border-bottom: 1px solid #8a3a2a;
+}
