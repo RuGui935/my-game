@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- 顶部状态栏与玩家信息 -->
         <header class="top-bar">
             <div class="status-bar">
                 <span>⚠️ 信号丢失</span>
@@ -25,93 +26,52 @@
             </div>
         </header>
 
-        <main class="main-content" id="mainContent">
-            <!-- 副本板块 -->
-            <div id="dungeon" class="page active">
-                <div class="dungeon-header">
-                    <h2 class="glitch-text">[ 当前副本 ]</h2>
-                    <div class="dungeon-name">废弃病栋 · 无限回廊</div>
-                </div>
-                <div class="dungeon-description">
-                    消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你...
-                </div>
-                <div class="dungeon-action">
-                    <button class="action-btn explore-btn">探索房间</button>
-                    <button class="action-btn escape-btn">逃离回廊</button>
-                </div>
-                <div class="event-log">
-                    <p>📜 事件记录：你踏入了病栋，手电筒开始闪烁。</p>
-                </div>
+        <!-- 主要内容：副本界面 -->
+        <main class="main-content">
+            <div class="dungeon-header">
+                <h2 class="glitch-text">[ 当前副本 ]</h2>
+                <div class="dungeon-name">废弃病栋 · 无限回廊</div>
             </div>
-
-            <!-- 论坛板块 -->
-            <div id="forum" class="page">
-                <div class="list-container">
-                    <h3 class="section-title">📁 低语论坛</h3>
-                    <ul class="post-list">
-                        <li><span class="post-title">[ 求助 ] 如何驱散第四层的护士？</span><span class="reply-count">13回复</span></li>
-                        <li><span class="post-title">[ 情报 ] 地下室保险箱密码线索</span><span class="reply-count">8回复</span></li>
-                        <li><span class="post-title">[ 诅咒 ] 不要凝视镜子超过10秒</span><span class="reply-count">22回复</span></li>
-                        <li><span class="post-title">[ 攻略 ] 无限回廊的10个隐藏房间</span><span class="reply-count">45回复</span></li>
-                    </ul>
-                </div>
+            <div class="dungeon-description">
+                消毒水的气味混合着铁锈，走廊尽头的轮椅在缓缓转动。你感觉到有什么东西在注视着你...
             </div>
-
-            <!-- 商城板块 -->
-            <div id="shop" class="page">
-                <div class="list-container">
-                    <h3 class="section-title">🕯️ 黑市商人</h3>
-                    <ul class="item-list">
-                        <li><span>🔦 生锈的十字架</span><span class="price">15 理智碎片</span></li>
-                        <li><span>🔦 手摇手电筒</span><span class="price">8 理智碎片</span></li>
-                        <li><span>🪨 神秘符文石</span><span class="price">30 理智碎片</span></li>
-                        <li><span>💊 镇定剂</span><span class="price">12 理智碎片</span></li>
-                    </ul>
-                </div>
+            <div class="dungeon-action">
+                <button class="action-btn explore-btn">探索房间</button>
+                <button class="action-btn escape-btn">逃离回廊</button>
             </div>
-
-            <!-- 奖池板块 -->
-            <div id="lottery" class="page">
-                <div class="list-container">
-                    <h3 class="section-title">🎲 命运的轮盘</h3>
-                    <p class="lottery-desc">每次抽奖消耗 5 理智碎片，获得随机物品或诅咒。</p>
-                    <button class="action-btn lottery-spin">转动轮盘</button>
-                </div>
-            </div>
-
-            <!-- 邮箱板块 -->
-            <div id="mail" class="page">
-                <div class="list-container">
-                    <h3 class="section-title">📬 染血的邮箱</h3>
-                    <ul class="mail-list">
-                        <li><span>📩 来自「系统」：欢迎来到无限游戏。</span><span class="mail-date">刚刚</span></li>
-                        <li><span>🕯️ 来自「???」：不要相信镜子里的自己。</span><span class="mail-date">1小时前</span></li>
-                        <li><span>📜 来自「管理员」：理智值低于30%时会有危险。</span><span class="mail-date">昨天</span></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 好友板块 -->
-            <div id="friend" class="page">
-                <div class="list-container">
-                    <h3 class="section-title">👥 同行者 (0/2)</h3>
-                    <p style="padding: 12px;">邀请好友加入副本，可同步进度。</p>
-                    <div class="friend-code">
-                        <span>你的编号：011</span>
-                        <button class="copy-code">复制邀请码</button>
-                    </div>
-                </div>
+            <div class="event-log">
+                <p>📜 事件记录：你踏入了病栋，手电筒开始闪烁。</p>
             </div>
         </main>
 
+        <!-- 底部导航栏：点击跳转到对应的独立页面 -->
         <nav class="bottom-nav">
-    <div class="nav-item" onclick="location.href='pages/forum.html'">💬<span class="nav-label">论坛</span></div>
-    <div class="nav-item active" onclick="location.href='index.html'">📖<span class="nav-label">副本</span></div>
-    <div class="nav-item" onclick="location.href='pages/shop.html'">🛒<span class="nav-label">商城</span></div>
-    <div class="nav-item" onclick="location.href='pages/lottery.html'">🎁<span class="nav-label">奖池</span></div>
-    <div class="nav-item" onclick="location.href='pages/mail.html'">✉️<span class="nav-label">邮箱</span></div>
-    <div class="nav-item" onclick="location.href='pages/friend.html'">👥<span class="nav-label">好友</span></div>
-</nav>
+            <div class="nav-item" onclick="location.href='pages/forum.html'">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">论坛</span>
+            </div>
+            <div class="nav-item active" onclick="location.href='index.html'">
+                <span class="nav-icon">📖</span>
+                <span class="nav-label">副本</span>
+            </div>
+            <div class="nav-item" onclick="location.href='pages/shop.html'">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">商城</span>
+            </div>
+            <div class="nav-item" onclick="location.href='pages/lottery.html'">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-label">奖池</span>
+            </div>
+            <div class="nav-item" onclick="location.href='pages/mail.html'">
+                <span class="nav-icon">✉️</span>
+                <span class="nav-label">邮箱</span>
+            </div>
+            <div class="nav-item" onclick="location.href='pages/friend.html'">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">好友</span>
+            </div>
+        </nav>
+    </div>
 
     <script src="script.js"></script>
 </body>
