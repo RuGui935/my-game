@@ -11,7 +11,7 @@
         <header class="top-bar">
             <div class="status-bar">
                 <span>⚠️ 信号丢失</span>
-                <span>🕸️ 03:00</span>
+                <span class="status-time">🕸️ 00:00:00</span>
                 <span>🔋 诅咒</span>
             </div>
             <div class="player-info">
@@ -29,19 +29,10 @@
                 <h3 class="section-title">👤 个人档案</h3>
                 <ul class="item-list" style="list-style:none;">
                     <li><span>🎮 玩家编号</span><span>011</span></li>
-                    <li><span>🏆 通关副本</span><span>1 / 4</span></li>
-                    <li><span>📜 探索次数</span><span id="exploreCount">0</span></li>
+                    <li><span>🏆 通关次数</span><span id="winCount">0</span></li>
+                    <li><span>💀 死亡次数</span><span id="deathCount">0</span></li>
+                    <li><span>📜 已通关副本</span><span id="completedList">无</span></li>
                     <li><span>💎 理智碎片</span><span id="profileShards">0</span></li>
-                    <li><span>👥 同行者</span><span>1</span></li>
-                </ul>
-            </div>
-            
-            <div class="list-container" style="margin-top: 20px;">
-                <h3 class="section-title">📊 统计数据</h3>
-                <ul class="item-list" style="list-style:none;">
-                    <li><span>⚔️ 总探索事件</span><span id="totalEvents">0</span></li>
-                    <li><span>💀 死亡次数</span><span>3</span></li>
-                    <li><span>🔓 解锁成就</span><span>2 / 10</span></li>
                 </ul>
             </div>
             
@@ -58,14 +49,33 @@
         </nav>
     </div>
 
-    <script src="../script.js"></script>
     <script>
-        const eventLog = JSON.parse(localStorage.getItem('eventLog') || '[]');
-        const shards = localStorage.getItem('sanityShards') || 100;
+        function updateProfile() {
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) shards = 100;
+            document.getElementById('profileShards').textContent = shards;
+            
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            document.getElementById('winCount').textContent = stats.wins;
+            document.getElementById('deathCount').textContent = stats.deaths;
+            
+            let completedText = stats.completedDungeons.length > 0 ? stats.completedDungeons.join(', ') : '无';
+            document.getElementById('completedList').textContent = completedText;
+        }
         
-        document.getElementById('exploreCount').textContent = eventLog.length;
-        document.getElementById('totalEvents').textContent = eventLog.length;
-        document.getElementById('profileShards').textContent = shards;
+        updateProfile();
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.querySelectorAll('.status-time').forEach(el => {
+                if (el) el.textContent = `🕸️ ${hours}:${minutes}:${seconds}`;
+            });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
     </script>
 </body>
 </html>
