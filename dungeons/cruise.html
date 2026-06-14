@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>幽灵邮轮 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .story-text { background: rgba(0,0,0,0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; border-left: 3px solid #9c4a3a; }
+        .choice-buttons { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .choice-btn { background: #1a1210; border: 1px solid #6a3a2a; padding: 12px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+        .choice-btn:active { transform: scale(0.98); background: #2a1a1a; }
+        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #4a2a2a; }
+        .use-item-title { font-size: 0.8rem; color: #7a5a4a; margin-bottom: 8px; }
+        .item-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .item-btn { background: #2a1a1a; border: 1px solid #6a3a2a; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; color: #dbbc8c; cursor: pointer; }
+        .status-bars { display: flex; gap: 16px; margin-bottom: 16px; justify-content: space-between; }
+        .status-item { flex: 1; background: #1a1210; padding: 8px; border-radius: 8px; text-align: center; }
+        .status-label { font-size: 0.7rem; color: #7a5a4a; }
+        .status-value { font-size: 1.2rem; font-weight: bold; color: #e8a87c; }
+        .reset-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 16px; cursor: pointer; width: 100%; }
+        .back-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar"><span>⚠️ 信号丢失</span><span class="status-time">🕸️ 00:00:00</span><span>🔋 诅咒</span></div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='../pages/profile.html'"></div>
+                <div class="player-stats" onclick="location.href='../pages/profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='../pages/settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='../pages/backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="status-bars">
+                <div class="status-item"><div class="status-label">❤️ 生命值</div><div class="status-value" id="hpValue">100</div></div>
+                <div class="status-item"><div class="status-label">🧠 理智值</div><div class="status-value" id="sanityValue">100</div></div>
+            </div>
+
+            <div class="dungeon-header">
+                <h2 class="glitch-text">[ 幽灵邮轮 ]</h2>
+                <div class="dungeon-name">难度 ★☆☆☆☆</div>
+            </div>
+
+            <div class="story-text" id="storyText">加载中...</div>
+            <div class="choice-buttons" id="choiceButtons"></div>
+
+            <div class="use-item-area" id="useItemArea" style="display: none;">
+                <div class="use-item-title">📦 使用道具</div>
+                <div class="item-buttons" id="itemButtons"></div>
+            </div>
+
+            <button class="reset-btn" id="resetBtn" style="display: none;">🔄 重新开始副本</button>
+            <button class="back-btn" id="backBtn" style="display: none;" onclick="location.href='../index.html'">← 返回副本列表</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='../pages/forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='../pages/shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='../pages/lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='../pages/mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='../pages/friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        // ========== 幽灵邮轮剧情 ==========
+        let hp = 100, sanity = 100, gameActive = true;
+        
+        function addEventLog(msg) {
+            let log = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+            log.unshift({ time: timeStr, message: msg });
+            if (log.length > 50) log.pop();
+            localStorage.setItem('eventLog', JSON.stringify(log));
+        }
+
+        function updateStats() {
+            document.getElementById('hpValue').textContent = Math.max(0, hp);
+            document.getElementById('sanityValue').textContent = Math.max(0, sanity);
+            let shards = localStorage.getItem('sanityShards') || 100;
+            document.getElementById('shardsValue').textContent = shards;
+        }
+
+        function applyEffects(effects) {
+            if (effects.hp) { hp += effects.hp; if (hp <= 0) { hp = 0; gameActive = false; } }
+            if (effects.sanity) { sanity += effects.sanity; if (sanity <= 0) { sanity = 0; gameActive = false; } }
+            updateStats();
+            if (effects.hp && effects.hp < 0) addEventLog(`生命-${Math.abs(effects.hp)}`);
+            if (effects.sanity && effects.sanity < 0) addEventLog(`理智-${Math.abs(effects.sanity)}`);
+        }
+
+        function updateItemButtons() {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            if (backpack.length === 0) { document.getElementById('useItemArea').style.display = 'none'; return; }
+            document.getElementById('useItemArea').style.display = 'block';
+            document.getElementById('itemButtons').innerHTML = backpack.map((item, idx) => 
+                `<button class="item-btn" data-item-index="${idx}" data-item-name="${item.name}">${item.icon || '📦'} ${item.name}</button>`
+            ).join('');
+            document.querySelectorAll('.item-btn').forEach(btn => btn.addEventListener('click', () => useItem(btn.getAttribute('data-item-name'))));
+        }
+
+        function useItem(itemName) {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            let idx = backpack.findIndex(i => i.name === itemName);
+            if (idx === -1) return;
+            if (itemName === '镇定剂') { hp = Math.min(100, hp + 20); sanity = Math.min(100, sanity + 15); addEventLog('使用镇定剂，生命+20，理智+15'); alert('镇定剂生效，感觉好多了！'); }
+            else if (itemName === '手摇手电筒') { sanity = Math.min(100, sanity + 10); addEventLog('手电筒照亮黑暗，理智+10'); alert('手电筒驱散了恐惧'); }
+            else if (itemName === '生锈的十字架') { sanity = Math.min(100, sanity + 15); addEventLog('十字架发出微光，理智+15'); alert('十字架让你感到一丝安心'); }
+            else { alert('这个道具在这里没用'); return; }
+            backpack.splice(idx, 1);
+            localStorage.setItem('backpack', JSON.stringify(backpack));
+            updateStats();
+            updateItemButtons();
+        }
+
+        function handleDeath(msg) {
+            addEventLog(msg);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.deaths++;
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            document.getElementById('storyText').innerHTML = `<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${msg}`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            gameActive = false;
+        }
+
+        function handleWin() {
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+            let reward = 30;
+            shards += reward;
+            localStorage.setItem('sanityShards', shards);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.wins++;
+            if (!stats.completedDungeons.includes('幽灵邮轮')) stats.completedDungeons.push('幽灵邮轮');
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            addEventLog(`通关幽灵邮轮，获得${reward}理智碎片`);
+            document.getElementById('storyText').innerHTML = `<span style="color:#7ec850;">⭐ 通关！ ⭐</span><br><br>你成功逃离了幽灵邮轮！获得了 ${reward} 理智碎片！`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            gameActive = false;
+            updateStats();
+        }
+
+        // 剧情节点
+        let currentNode = 'start';
+        const scenes = {
+            start: {
+                text: "你站在码头上，一艘巨大的豪华邮轮静静地停泊在浓雾中。舷梯已经放下，似乎在邀请你登船。三十年前，这艘船连同船上3000名乘客一同消失在了百慕大三角...",
+                choices: [
+                    { text: "🔍 登船探索", next: "lobby", effects: {} },
+                    { text: "🏃 转身离开", next: "leave", effects: {} }
+                ]
+            },
+            leave: {
+                text: "你转身离开，身后的邮轮消失在浓雾中。副本挑战失败。",
+                choices: [],
+                isDeath: true, deathMsg: "你放弃了探索，离开了邮轮。"
+            },
+            lobby: {
+                text: "你走进富丽堂皇的大厅，水晶吊灯闪烁着诡异的光芒。接待台后站着一个穿着制服的...骷髅？它缓缓抬起手，指向走廊方向。",
+                choices: [
+                    { text: "⬆️ 上楼梯去甲板", next: "deck", effects: {} },
+                    { text: "🚪 去宴会厅", next: "ballroom", effects: {} },
+                    { text: "🔍 检查接待台", next: "reception", effects: {} }
+                ]
+            },
+            reception: {
+                text: "你翻看了登船记录，最后一页写着：'所有乘客请到宴会厅集合，船长有重要通知'。突然，你听到身后有脚步声，回头却什么也没有。",
+                choices: [
+                    { text: "去宴会厅", next: "ballroom", effects: { sanity: -5 } },
+                    { text: "上甲板", next: "deck", effects: {} }
+                ]
+            },
+            deck: {
+                text: "甲板上海风呼啸，救生艇在风中摇摆。海面上雾气弥漫，看不到任何陆地。一个穿着白色连衣裙的小女孩站在栏杆边，背对着你。",
+                choices: [
+                    { text: "👧 靠近小女孩", next: "girl", effects: {} },
+                    { text: "🔭 看向海面", next: "ocean", effects: {} },
+                    { text: "⬇️ 返回大厅", next: "lobby", effects: {} }
+                ]
+            },
+            girl: {
+                text: "你走近小女孩，她缓缓转过头。她的脸上没有五官，只有一片空白！她伸出惨白的手抓住你，你奋力挣脱。",
+                choices: [
+                    { text: "🏃 逃跑", next: "deck", effects: { hp: -10, sanity: -10 } },
+                    { text: "📿 用十字架驱赶", next: "girlDefeated", effects: {}, requiresItem: "生锈的十字架" }
+                ]
+            },
+            girlDefeated: {
+                text: "你举起十字架，小女孩尖叫着消散了。地上留下了一个发光的珍珠。",
+                choices: [
+                    { text: "💎 捡起珍珠", next: "win", effects: {} }
+                ]
+            },
+            ocean: {
+                text: "你凝视着漆黑的海面，突然看到海水中浮起一张张惨白的面孔，正睁大眼睛看着你！你吓得后退几步。",
+                choices: [
+                    { text: "返回甲板", next: "deck", effects: { sanity: -15 } }
+                ]
+            },
+            ballroom: {
+                text: "宴会厅里灯火通明，留声机自动播放着华尔兹。空无一人的舞池中可以看到鞋印在自动移动，仿佛有无形的舞者在跳舞。突然，一个身穿船长制服的身影出现在舞台上。",
+                choices: [
+                    { text: "🎭 与船长对话", next: "captain", effects: {} },
+                    { text: "🔍 搜查周围", next: "searchBallroom", effects: {} },
+                    { text: "🚪 离开宴会厅", next: "lobby", effects: {} }
+                ]
+            },
+            captain: {
+                text: "船长幽灵缓缓开口：'欢迎来到玛丽皇后号...你们都将永远留在这里...' 他向你扑来！",
+                choices: [
+                    { text: "⚔️ 战斗", next: "fightCaptain", effects: { hp: -25 } },
+                    { text: "🏃 逃跑", next: "lobby", effects: { sanity: -15 } }
+                ]
+            },
+            fightCaptain: {
+                text: "你拼尽全力与船长搏斗，最终将他击退。他消失在空气中，留下了一把古老的钥匙。",
+                choices: [
+                    { text: "🔑 捡起钥匙", next: "win", effects: {} }
+                ]
+            },
+            searchBallroom: {
+                text: "你在角落发现了一个保险箱，用刚才找到的钥匙（或者撬开）打开了它。里面有一本日记，记录了这艘船被诅咒的真相。",
+                choices: [
+                    { text: "阅读日记", next: "win", effects: {} }
+                ]
+            },
+            win: {
+                text: "你找到了诅咒的核心并将其摧毁。邮轮开始震动，你冲向舷梯，在最后一刻跳上了救生艇。浓雾散去，阳光洒在海面上，你成功逃脱了！",
+                choices: [],
+                isWin: true
+            }
+        };
+
+        function renderScene(id) {
+            if (!gameActive) return;
+            let scene = scenes[id];
+            if (!scene) return;
+            if (scene.isWin) { handleWin(); return; }
+            if (scene.isDeath) { handleDeath(scene.deathMsg); return; }
+            if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+            if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+            
+            document.getElementById('storyText').innerHTML = scene.text;
+            if (scene.choices && scene.choices.length > 0) {
+                document.getElementById('choiceButtons').innerHTML = scene.choices.map((c, i) => {
+                    let req = c.requiresItem ? ` (需要:${c.requiresItem})` : '';
+                    return `<button class="choice-btn" data-choice="${i}">${c.text}${req}</button>`;
+                }).join('');
+                document.querySelectorAll('.choice-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        let idx = parseInt(btn.getAttribute('data-choice'));
+                        let choice = scene.choices[idx];
+                        if (choice.requiresItem) {
+                            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                            if (!backpack.some(i => i.name === choice.requiresItem)) {
+                                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                                return;
+                            }
+                        }
+                        if (choice.effects) applyEffects(choice.effects);
+                        if (choice.next) renderScene(choice.next);
+                    });
+                });
+            } else {
+                document.getElementById('choiceButtons').innerHTML = '';
+            }
+            updateItemButtons();
+        }
+
+        function resetGame() {
+            hp = 100; sanity = 100; gameActive = true;
+            updateStats();
+            renderScene('start');
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+        }
+
+        renderScene('start');
+        updateStats();
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        setInterval(() => {
+            let now = new Date();
+            document.querySelectorAll('.status-time').forEach(el => el.textContent = `🕸️ ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`);
+        }, 1000);
+    </script>
+</body>
+</html>
