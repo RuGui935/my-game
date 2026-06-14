@@ -7,16 +7,28 @@
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .story-text { background: rgba(0,0,0,0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; border-left: 3px solid #8a6a2a; }
+        /* 覆盖全局样式，确保副本内样式正确 */
+        .story-text { background: rgba(0,0,0,0.7); padding: 18px; border-radius: 12px; margin-bottom: 20px; line-height: 1.7; font-size: 0.95rem; border-left: 4px solid #d4a017; }
         .choice-buttons { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
-        .choice-btn { background: #1a1210; border: 1px solid #6a3a2a; padding: 12px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+        .choice-btn { background: #1a1210; border: 1px solid #8a6a2a; padding: 14px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
         .choice-btn:active { transform: scale(0.98); background: #2a1a1a; }
-        .choice-btn.death-option { border-color: #8a2a2a; color: #ff8a6a; background: #2a0a0a; }
-        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #4a2a2a; }
+        .choice-btn.death-option { border-color: #c0392b; color: #e74c3c; background: #2a0a0a; }
+        .choice-btn.win-option { border-color: #27ae60; color: #2ecc71; }
         .status-bars { display: flex; gap: 16px; margin-bottom: 16px; justify-content: space-between; }
-        .status-item { flex: 1; background: #1a1210; padding: 8px; border-radius: 8px; text-align: center; }
-        .status-value { font-size: 1.2rem; font-weight: bold; color: #e8a87c; }
-        .reset-btn, .back-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
+        .status-item { flex: 1; background: #1a1210; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #4a2a2a; }
+        .status-label { font-size: 0.7rem; color: #7a5a4a; }
+        .status-value { font-size: 1.3rem; font-weight: bold; color: #e8a87c; }
+        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #8a6a2a; }
+        .use-item-title { font-size: 0.8rem; color: #d4a017; margin-bottom: 8px; }
+        .item-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .item-btn { background: #2a1a1a; border: 1px solid #8a6a2a; padding: 8px 14px; border-radius: 20px; font-size: 0.75rem; color: #dbbc8c; cursor: pointer; transition: all 0.2s; }
+        .item-btn:active { transform: scale(0.95); background: #3a2a2a; }
+        .reset-btn, .back-btn { background: #2a1a1a; border: 1px solid #8a6a2a; color: #dbbc8c; padding: 10px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 0.9rem; }
+        .reset-btn:hover, .back-btn:hover { background: #3a2a2a; }
+        .resource-bar { display: flex; justify-content: space-between; align-items: center; background: #1a1210; padding: 10px 16px; border-radius: 30px; margin-bottom: 20px; border: 1px solid #8a6a2a; }
+        .dungeon-header { margin-bottom: 20px; border-left: 4px solid #d4a017; padding-left: 12px; }
+        .glitch-text { font-family: 'Creepster', cursive; font-size: 1.2rem; color: #d4a017; text-shadow: 1px 1px 0 #3a1a1a; }
+        .dungeon-name { font-size: 1rem; color: #b0a07c; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -35,21 +47,35 @@
 
         <main class="main-content">
             <div class="resource-bar">
-                <span class="resource-label">💎 理智碎片</span><span class="resource-value" id="shardsValue">0</span>
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
                 <span style="flex:1"></span>
-                <span onclick="location.href='../pages/backpack.html'" style="cursor:pointer;">🎒 背包</span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='../pages/backpack.html'">🎒 背包</span>
             </div>
+
             <div class="status-bars">
                 <div class="status-item"><div class="status-label">❤️ 生命值</div><div class="status-value" id="hpValue">100</div></div>
                 <div class="status-item"><div class="status-label">🧠 理智值</div><div class="status-value" id="sanityValue">100</div></div>
+                <div class="status-item"><div class="status-label">⛏️ 矿灯光</div><div class="status-value" id="lightValue">100</div></div>
             </div>
-            <div class="dungeon-header"><h2 class="glitch-text">[ 废弃矿井 ]</h2><div class="dungeon-name">难度 ★★★☆☆</div></div>
+
+            <div class="dungeon-header">
+                <h2 class="glitch-text">[ 废弃矿井 ]</h2>
+                <div class="dungeon-name">难度 ★★★☆☆ | 地下深渊</div>
+            </div>
+
             <div class="story-text" id="storyText">加载中...</div>
             <div class="choice-buttons" id="choiceButtons"></div>
-            <div class="use-item-area" id="useItemArea" style="display: none;"><div class="use-item-title">📦 使用道具</div><div class="item-buttons" id="itemButtons"></div></div>
-            <button class="reset-btn" id="resetBtn" style="display: none;">🔄 重新开始</button>
-            <button class="back-btn" id="backBtn" style="display: none;" onclick="location.href='../index.html'">← 返回</button>
+
+            <div class="use-item-area" id="useItemArea" style="display: none;">
+                <div class="use-item-title">📦 使用道具（可帮助生存）</div>
+                <div class="item-buttons" id="itemButtons"></div>
+            </div>
+
+            <button class="reset-btn" id="resetBtn" style="display: none;">🔄 重新挑战废弃矿井</button>
+            <button class="back-btn" id="backBtn" style="display: none;" onclick="location.href='../index.html'">← 返回副本列表</button>
         </main>
+
         <nav class="bottom-nav">
             <div class="nav-item" onclick="location.href='../pages/forum.html'">💬<span class="nav-label">论坛</span></div>
             <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
@@ -61,82 +87,532 @@
     </div>
 
     <script>
-        let hp = 100, sanity = 100, gameActive = true;
-        function addEventLog(msg) { let log = JSON.parse(localStorage.getItem('eventLog') || '[]'); log.unshift({ time: new Date().toLocaleTimeString(), message: msg }); if (log.length > 50) log.pop(); localStorage.setItem('eventLog', JSON.stringify(log)); }
-        function updateStats() { document.getElementById('hpValue').textContent = Math.max(0, hp); document.getElementById('sanityValue').textContent = Math.max(0, sanity); document.getElementById('shardsValue').textContent = localStorage.getItem('sanityShards') || 100; }
-        function applyEffects(e) { if (e.hp) { hp += e.hp; if (hp <= 0) gameActive = false; } if (e.sanity) { sanity += e.sanity; if (sanity <= 0) gameActive = false; } updateStats(); if (e.hp && e.hp < 0) addEventLog(`生命-${Math.abs(e.hp)}`); if (e.sanity && e.sanity < 0) addEventLog(`理智-${Math.abs(e.sanity)}`); }
-        function useItem(n) { let b = JSON.parse(localStorage.getItem('backpack') || '[]'); let i = b.findIndex(x=>x.name===n); if(i==-1)return; if(n==='镇定剂'){hp=Math.min(100,hp+20);sanity=Math.min(100,sanity+15);addEventLog('使用镇定剂，生命+20，理智+15');alert('镇定剂生效');}else if(n==='手摇手电筒'){sanity=Math.min(100,sanity+10);addEventLog('手电筒照亮矿道，理智+10');alert('手电筒驱散黑暗');}else if(n==='生锈的十字架'){sanity=Math.min(100,sanity+15);addEventLog('十字架发出微光，理智+15');alert('十字架带来一丝安全感');}else{alert('无效');return;} b.splice(i,1); localStorage.setItem('backpack',JSON.stringify(b)); updateStats(); updateItemButtons();}
-        function updateItemButtons() { let b = JSON.parse(localStorage.getItem('backpack') || '[]'); if(b.length===0){document.getElementById('useItemArea').style.display='none';return;} document.getElementById('useItemArea').style.display='block'; document.getElementById('itemButtons').innerHTML = b.map((item,idx)=>`<button class="item-btn" data-name="${item.name}">${item.icon||'📦'} ${item.name}</button>`).join(''); document.querySelectorAll('.item-btn').forEach(btn=>btn.addEventListener('click',()=>useItem(btn.getAttribute('data-name')))); }
-        function handleDeath(m) { addEventLog(m); let s = JSON.parse(localStorage.getItem('playerStats')||'{"wins":0,"deaths":0,"completedDungeons":[]}'); s.deaths++; localStorage.setItem('playerStats',JSON.stringify(s)); document.getElementById('storyText').innerHTML=`<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${m}`; document.getElementById('choiceButtons').innerHTML=''; document.getElementById('useItemArea').style.display='none'; document.getElementById('resetBtn').style.display='block'; document.getElementById('backBtn').style.display='block'; gameActive=false; }
-        function handleWin() { let shards=parseInt(localStorage.getItem('sanityShards')||'100')+60; localStorage.setItem('sanityShards',shards); let s=JSON.parse(localStorage.getItem('playerStats')||'{"wins":0,"deaths":0,"completedDungeons":[]}'); s.wins++; if(!s.completedDungeons.includes('废弃矿井')) s.completedDungeons.push('废弃矿井'); localStorage.setItem('playerStats',JSON.stringify(s)); addEventLog('通关废弃矿井，获得60理智碎片'); document.getElementById('storyText').innerHTML=`<span style="color:#7ec850;">⭐ 通关！ ⭐</span><br><br>你逃出了废弃矿井！获得60理智碎片！`; document.getElementById('choiceButtons').innerHTML=''; document.getElementById('useItemArea').style.display='none'; document.getElementById('resetBtn').style.display='block'; document.getElementById('backBtn').style.display='block'; gameActive=false; updateStats(); }
-
-        const scenes = {
-            start: { text: "矿道的入口像一个张开的巨口，黑暗深不见底。你点燃了矿灯，踏入了这片被遗弃的地下世界。空气中弥漫着硫磺和腐朽的气味。脚下有碎石滚动的声音，你感觉有什么东西在暗处看着你。", choices: [{ text: "⬇️ 向深处走去", next: "deepMine", effects: {} }, { text: "🔍 检查入口周围", next: "entrance", effects: {} }] },
-            entrance: { text: "墙上刻着一些符号，像是某种警告。地上有一把生锈的镐子和一具干尸。干尸的手指指着深处。", choices: [{ text: "⛏️ 拿起镐子", next: "getPickaxe", effects: { sanity: -10 } }, { text: "⬇️ 进入矿道", next: "deepMine", effects: {} }] },
-            getPickaxe: { text: "你拿起镐子，干尸突然动了一下！你吓得后退，但它没有再动。", choices: [{ text: "进入矿道", next: "deepMine", effects: { hp: -5 } }] },
-            deepMine: { text: "矿道越来越窄，头顶不断有碎石掉落。远处有镐子敲击的节奏声。你看到前方有一个岔路口。", choices: [{ text: "🔊 朝声音方向走去", next: "miner", effects: {} }, { text: "↩️ 走另一条路", next: "darkPath", effects: {} }, { text: "🔦 用矿灯照向深处", next: "lightDeep", effects: { sanity: -5 } }] },
-            lightDeep: { text: "矿灯照到了一个佝偻的身影在黑暗中挖掘。他穿着几十年前的矿工服。听到你的声音，他缓缓转过头——那是一张骷髅般的面孔！", choices: [{ text: "⚔️ 用镐子攻击", next: "attackMiner", effects: {}, requiresItem: "生锈的镐子" }, { text: "🏃 转身逃跑", next: "runMine", effects: { sanity: -25 } }] },
-            attackMiner: { text: "你挥舞镐子击中了矿工幽灵，他化作黑烟消散了。但诅咒也缠上了你。", choices: [{ text: "继续前进", next: "treasure", effects: { hp: -15 } }] },
-            runMine: { text: "你疯狂地奔跑，在黑暗中摔了好几次。终于甩掉了那个东西，但你发现自己迷路了。", choices: [{ text: "继续", next: "lostMine", effects: { hp: -15, sanity: -10 } }] },
-            lostMine: { text: "你在地下迷宫中完全迷失了方向。矿灯的电量开始不足。", choices: [{ text: "向左走", next: "deadEnd", effects: {} }, { text: "向右走", next: "deadEnd2", effects: {} }, { text: "向前走", next: "escapeMine", effects: {} }] },
-            deadEnd: { text: "你走进了一个死胡同，突然地面塌陷！", choices: [], isDeath: true, deathMsg: "你掉进了深不见底的裂缝，永远消失在了矿井中。" },
-            deadEnd2: { text: "你走进了矿工休息室，里面坐满了矿工的幽灵！他们全部转过头看着你。", choices: [], isDeath: true, deathMsg: "矿工幽灵们将你团团围住，你永远留在了矿井里。" },
-            escapeMine: { text: "你幸运地找到了一个通风井，顺着绳子爬了上去，重见天日！", choices: [], isWin: true },
-            darkPath: { text: "这条矿道更窄，空气更加稀薄。你听到前方有流水声。", choices: [{ text: "💧 朝流水声走去", next: "undergroundRiver", effects: {} }, { text: "↩️ 返回岔路口", next: "deepMine", effects: {} }] },
-            undergroundRiver: { text: "你来到一条地下河边。水很清澈，但很深。对岸似乎有发光的东西。", choices: [{ text: "🏊 游泳过河", next: "swimRiver", effects: { hp: -10 } }, { text: "🔍 沿河岸走", next: "riverBank", effects: {} }] },
-            swimRiver: { text: "你跳进河里，突然有什么东西抓住了你的脚！是水鬼！", choices: [{ text: "⚔️ 挣扎", next: "fightWaterGhost", effects: { hp: -30 } }, { text: "💊 丢出镇定剂", next: "calmWaterGhost", effects: {}, requiresItem: "镇定剂" }] },
-            fightWaterGhost: { text: "你拼命挣扎，终于摆脱了水鬼，但已经筋疲力尽。", choices: [{ text: "爬到对岸", next: "treasure", effects: { hp: -10 } }] },
-            calmWaterGhost: { text: "镇定剂在水中溶解，水鬼平静了下来，甚至帮你推到了对岸。", choices: [{ text: "探索对岸", next: "treasure", effects: {} }] },
-            riverBank: { text: "你沿着河岸走，发现了一座木桥。但桥已经腐朽。", choices: [{ text: "🌉 过桥", next: "crossBridge", effects: { hp: -20 } }, { text: "继续沿河走", next: "longWalk", effects: { sanity: -10 } }] },
-            crossBridge: { text: "你小心翼翼地过桥，桥在中间断裂，你抓住了一根绳子，荡到了对岸。", choices: [{ text: "继续", next: "treasure", effects: {} }] },
-            longWalk: { text: "你走了很久，终于发现了一处可以涉水的地方。", choices: [{ text: "过河", next: "treasure", effects: { hp: -10 } }] },
-            treasure: { text: "你发现了一个隐藏的矿室，里面堆积着一些发光的水晶和一块巨大的能量石。但同时，一只巨大的蝙蝠怪物出现了！", choices: [{ text: "⚔️ 战斗", next: "fightBat", effects: { hp: -40 } }, { text: "🏃 拿走能量石逃跑", next: "runWithGem", effects: { hp: -20 } }, { text: "💡 用手电筒照它", next: "flashlightBat", effects: {}, requiresItem: "手摇手电筒" }] },
-            fightBat: { text: "你与蝙蝠怪物搏斗，身受重伤但最终击败了它。", choices: [{ text: "离开", next: "win", effects: {} }] },
-            runWithGem: { text: "你抓起能量石拼命逃跑，蝙蝠在后面追你。你跳进一个矿车，顺着轨道冲出了矿井。", choices: [{ text: "离开", next: "win", effects: {} }] },
-            flashlightBat: { text: "手电筒的强光让蝙蝠怪物尖叫着飞走了。你安全地拿走了能量石。", choices: [{ text: "离开", next: "win", effects: {} }] },
-            miner: { text: "你走近那个身影，他突然转过身来——是一个活着的矿工！他说：'快走！这里被诅咒了！' 话还没说完，地面裂开，他被吞没了。", choices: [{ text: "🏃 朝反方向跑", next: "escapePath", effects: { sanity: -15 } }, { text: "🔍 查看裂缝", next: "lookCrack", effects: { sanity: -20 } }] },
-            lookCrack: { text: "你往裂缝里看，一只巨大的眼睛正在看着你！", choices: [], isDeath: true, deathMsg: "裂缝中的怪物将你拉入了深渊。" },
-            escapePath: { text: "你跑到了一个新区域，这里有一个电梯。", choices: [{ text: "⬆️ 坐电梯上去", next: "elevator", effects: {} }, { text: "继续探索", next: "deepMine", effects: {} }] },
-            elevator: { text: "电梯缓缓上升，但中途卡住了。你用力撬开门，发现自己在一楼出口附近。", choices: [{ text: "🏃 跑向出口", next: "win", effects: { hp: -5 } }] },
-            win: { text: "你冲出了矿井，阳光刺眼。回头望去，矿井入口已经消失了。你成功逃脱了！", choices: [], isWin: true }
-        };
-
-        function renderScene(id) {
+        // ========== 游戏状态 ==========
+        let hp = 100;
+        let sanity = 100;
+        let light = 100;  // 矿灯光量
+        let gameActive = true;
+        let currentNode = 'start';
+        
+        // ========== 辅助函数 ==========
+        function addEventLog(msg) {
+            let log = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            log.unshift({ time: timeStr, message: msg });
+            if (log.length > 50) log.pop();
+            localStorage.setItem('eventLog', JSON.stringify(log));
+        }
+        
+        function updateStats() {
+            document.getElementById('hpValue').textContent = Math.max(0, hp);
+            document.getElementById('sanityValue').textContent = Math.max(0, sanity);
+            document.getElementById('lightValue').textContent = Math.max(0, light);
+            let shards = localStorage.getItem('sanityShards');
+            if (shards === null) shards = 100;
+            document.getElementById('shardsValue').textContent = shards;
+        }
+        
+        function applyEffects(effects) {
             if (!gameActive) return;
-            let s = scenes[id];
-            if (!s) return;
-            if (s.isWin) { handleWin(); return; }
-            if (s.isDeath) { handleDeath(s.deathMsg); return; }
-            if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
-            if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
-            document.getElementById('storyText').innerHTML = s.text;
-            if (s.choices && s.choices.length) {
-                document.getElementById('choiceButtons').innerHTML = s.choices.map((c,i)=>`<button class="choice-btn ${c.effects?.hp && c.effects.hp <= -30 ? 'death-option' : ''}" data-choice="${i}">${c.text}${c.requiresItem?` (需要:${c.requiresItem})`:''}</button>`).join('');
-                document.querySelectorAll('.choice-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (!gameActive) return;  // ← 添加这一行
-        let idx = parseInt(btn.getAttribute('data-choice'));
-        let choice = scene.choices[idx];
-        if (choice.requiresItem) {
+            if (effects.hp) {
+                hp += effects.hp;
+                if (hp <= 0) {
+                    hp = 0;
+                    gameActive = false;
+                    handleDeath('你的生命值归零，倒在了黑暗的矿道中...');
+                    return;
+                }
+                if (effects.hp < 0) addEventLog(`生命-${Math.abs(effects.hp)}`);
+                if (effects.hp > 0) addEventLog(`生命+${effects.hp}`);
+            }
+            if (effects.sanity) {
+                sanity += effects.sanity;
+                if (sanity <= 0) {
+                    sanity = 0;
+                    gameActive = false;
+                    handleDeath('你的理智彻底崩溃，永远迷失在矿井中...');
+                    return;
+                }
+                if (effects.sanity < 0) addEventLog(`理智-${Math.abs(effects.sanity)}`);
+                if (effects.sanity > 0) addEventLog(`理智+${effects.sanity}`);
+            }
+            if (effects.light) {
+                light += effects.light;
+                if (light <= 0) {
+                    light = 0;
+                    addEventLog('矿灯熄灭了！黑暗降临...');
+                }
+                if (light < 30 && light > 0) addEventLog('矿灯闪烁，电量不足！');
+            }
+            updateStats();
+        }
+        
+        function updateItemButtons() {
             let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
-            if (!backpack.some(i => i.name === choice.requiresItem)) {
-                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+            if (backpack.length === 0) {
+                document.getElementById('useItemArea').style.display = 'none';
                 return;
             }
+            document.getElementById('useItemArea').style.display = 'block';
+            document.getElementById('itemButtons').innerHTML = backpack.map((item, idx) => 
+                `<button class="item-btn" data-item-index="${idx}" data-item-name="${item.name}">${item.icon || '📦'} ${item.name}</button>`
+            ).join('');
+            document.querySelectorAll('.item-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!gameActive) return;
+                    useItem(btn.getAttribute('data-item-name'));
+                });
+            });
         }
-        if (choice.effects) applyEffects(choice.effects);
-        // 应用效果后再次检查生命/理智
-        if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
-        if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
-        if (choice.next) renderScene(choice.next);
-    });
-});
-            } else document.getElementById('choiceButtons').innerHTML = '';
+        
+        function useItem(itemName) {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            let idx = backpack.findIndex(i => i.name === itemName);
+            if (idx === -1) return;
+            
+            if (itemName === '镇定剂') {
+                hp = Math.min(100, hp + 20);
+                sanity = Math.min(100, sanity + 15);
+                addEventLog('使用镇定剂，生命+20，理智+15');
+                alert('镇定剂让你冷静下来，黑暗中不再那么恐惧');
+            } else if (itemName === '手摇手电筒') {
+                light = Math.min(100, light + 30);
+                sanity = Math.min(100, sanity + 10);
+                addEventLog('手电筒补充了光源，矿灯光+30，理智+10');
+                alert('手电筒的光芒照亮了周围的黑暗');
+            } else if (itemName === '生锈的十字架') {
+                sanity = Math.min(100, sanity + 15);
+                addEventLog('十字架发出微弱光芒，理智+15');
+                alert('十字架让你感到一丝神圣的庇护');
+            } else if (itemName === '护身符') {
+                hp = Math.min(100, hp + 15);
+                addEventLog('护身符保护了你，生命+15');
+                alert('护身符温热起来，挡住了某种危险');
+            } else {
+                alert('这个道具在矿井中没有效果');
+                return;
+            }
+            
+            backpack.splice(idx, 1);
+            localStorage.setItem('backpack', JSON.stringify(backpack));
+            updateStats();
             updateItemButtons();
         }
-        function resetGame() { hp=100; sanity=100; gameActive=true; updateStats(); renderScene('start'); document.getElementById('resetBtn').style.display='none'; document.getElementById('backBtn').style.display='none'; }
-        renderScene('start'); updateStats(); document.getElementById('resetBtn').addEventListener('click', resetGame);
-        setInterval(()=>{let n=new Date(); document.querySelectorAll('.status-time').forEach(el=>el.textContent=`🕸️ ${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}:${n.getSeconds().toString().padStart(2,'0')}`);},1000);
+        
+        function handleDeath(msg) {
+            if (!gameActive) return;
+            gameActive = false;
+            addEventLog(msg);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.deaths++;
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            document.getElementById('storyText').innerHTML = `<span style="color:#e74c3c; font-size:1.2rem;">💀 死亡 💀</span><br><br>${msg}<br><br><span style="color:#7a5a4a;">点击下方按钮重新挑战</span>`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            updateStats();
+        }
+        
+        function handleWin() {
+            if (!gameActive) return;
+            gameActive = false;
+            let reward = 60;
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+            shards += reward;
+            localStorage.setItem('sanityShards', shards);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.wins++;
+            if (!stats.completedDungeons.includes('废弃矿井')) stats.completedDungeons.push('废弃矿井');
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            addEventLog(`通关废弃矿井，获得${reward}理智碎片`);
+            document.getElementById('storyText').innerHTML = `<span style="color:#2ecc71; font-size:1.2rem;">⭐ 通关！ ⭐</span><br><br>你成功逃离了废弃矿井！<br>获得了 ${reward} 理智碎片！`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            updateStats();
+        }
+        
+        // ========== 剧情场景 ==========
+        const scenes = {
+            start: {
+                text: "⛏️ 矿道的入口像一个张开的巨口，黑暗深不见底。你点燃了矿灯，踏入了这片被遗弃的地下世界。空气中弥漫着硫磺和腐朽的气味。脚下有碎石滚动的声音，你感觉有什么东西在暗处看着你。\n\n矿灯照亮了前方狭窄的矿道，墙壁上闪烁着不明矿石的微光。",
+                choices: [
+                    { text: "⬇️ 向深处走去", next: "deepMine", effects: { light: -5 } },
+                    { text: "🔍 检查入口周围", next: "entrance", effects: {} },
+                    { text: "🔦 检查矿灯", next: "checkLight", effects: {} }
+                ]
+            },
+            checkLight: {
+                text: "你检查了矿灯，电池还能用一段时间。你看到墙上有一个备用的矿灯，但够不到。",
+                choices: [
+                    { text: "继续前进", next: "start", effects: {} }
+                ]
+            },
+            entrance: {
+                text: "墙上刻着一些奇怪的符号，像是某种警告。地上有一把生锈的镐子和一具干尸。干尸的手指指着深处。你注意到干尸脖子上挂着一个护身符。",
+                choices: [
+                    { text: "⛏️ 拿起镐子", next: "getPickaxe", effects: { sanity: -5 } },
+                    { text: "📿 拿走护身符", next: "getAmulet", effects: { sanity: -5 } },
+                    { text: "⬇️ 忽略继续前进", next: "deepMine", effects: { light: -5 } }
+                ]
+            },
+            getPickaxe: {
+                text: "你拿起镐子，干尸突然动了一下！你吓得后退，但它没有再动。镐子很重，但可以作为武器。",
+                choices: [
+                    { text: "进入矿道", next: "deepMine", effects: { light: -3 } }
+                ]
+            },
+            getAmulet: {
+                text: "你取下护身符，它突然变得温热。也许能保佑你。干尸的手垂了下来。",
+                choices: [
+                    { text: "进入矿道", next: "deepMine", effects: { sanity: +5, light: -3 } }
+                ]
+            },
+            deepMine: {
+                text: "矿道越来越窄，头顶不断有碎石掉落。远处有镐子敲击的节奏声，但矿井早已荒废，会是谁在挖掘？矿灯的光束在墙壁上投下诡异的影子。",
+                choices: [
+                    { text: "🔊 朝声音方向走去", next: "minerGhost", effects: { light: -5 } },
+                    { text: "↩️ 走另一条路", next: "darkPath", effects: { light: -3 } },
+                    { text: "🔦 用矿灯照向深处", next: "lightDeep", effects: { light: -10, sanity: -5 } }
+                ]
+            },
+            lightDeep: {
+                text: "矿灯照到了一个佝偻的身影在黑暗中挖掘。他穿着几十年前的矿工服。听到你的声音，他缓缓转过头——那是一张骷髅般的面孔，眼眶里燃烧着绿色的火焰！",
+                choices: [
+                    { text: "⚔️ 用镐子攻击", next: "attackMiner", effects: { light: -5 }, requiresItem: "生锈的镐子" },
+                    { text: "🏃 转身逃跑", next: "runMine", effects: { sanity: -15, light: -5 } },
+                    { text: "📿 用护身符驱邪", next: "amuletMiner", effects: {}, requiresItem: "护身符" }
+                ]
+            },
+            amuletMiner: {
+                text: "你举起护身符，矿工幽灵尖叫着消散了。护身符变得更加温热，仿佛吸收了某种力量。",
+                choices: [
+                    { text: "继续前进", next: "treasureRoom", effects: { sanity: +10, light: -5 } }
+                ]
+            },
+            attackMiner: {
+                text: "你挥舞镐子击中了矿工幽灵，他化作黑烟消散了。但诅咒也缠上了你，手臂上出现了一个黑色的手印。",
+                choices: [
+                    { text: "继续前进", next: "treasureRoom", effects: { hp: -10, sanity: -5, light: -5 } }
+                ]
+            },
+            runMine: {
+                text: "你疯狂地奔跑，在黑暗中摔了好几次。终于甩掉了那个东西，但你发现自己迷路了。矿灯闪烁，电量告急。",
+                choices: [
+                    { text: "继续摸索前进", next: "lostMine", effects: { hp: -10, sanity: -10, light: -10 } }
+                ]
+            },
+            lostMine: {
+                text: "你在地下迷宫中完全迷失了方向。矿灯的电量几乎耗尽，只剩下微弱的黄光。你听到周围有窸窸窣窣的声音。",
+                choices: [
+                    { text: "向左走", next: "deadEnd", effects: { light: -5 } },
+                    { text: "向右走", next: "deadEnd2", effects: { light: -5 } },
+                    { text: "向前走", next: "escapeMine", effects: { light: -5 } },
+                    { text: "🔦 使用手电筒", next: "useFlashlight", effects: {}, requiresItem: "手摇手电筒" }
+                ]
+            },
+            useFlashlight: {
+                text: "你打开手电筒，强光照亮了前方！你看到了出口的标志。矿灯虽然熄灭了，但手电筒救了你。",
+                choices: [
+                    { text: "跑向出口", next: "win", effects: { hp: -5 } }
+                ]
+            },
+            deadEnd: {
+                text: "你走进了一个死胡同，突然地面塌陷！",
+                choices: [],
+                isDeath: true,
+                deathMsg: "你掉进了深不见底的裂缝，永远消失在了矿井中。"
+            },
+            deadEnd2: {
+                text: "你走进了矿工休息室，里面坐满了矿工的幽灵！在微弱的灯光下，他们全部转过头看着你，绿色的眼睛在黑暗中发光。",
+                choices: [],
+                isDeath: true,
+                deathMsg: "矿工幽灵们将你团团围住，你永远留在了矿井里。"
+            },
+            escapeMine: {
+                text: "你幸运地找到了一个通风井，顺着绳子爬了上去。就在你快要到达出口时，绳子突然断裂！",
+                choices: [
+                    { text: "抓住岩壁", next: "climbOut", effects: { hp: -15 } }
+                ]
+            },
+            climbOut: {
+                text: "你拼命抓住岩壁上的凸起，终于爬了出去！阳光刺眼，你回头望去，矿井入口已经消失了。",
+                choices: [
+                    { text: "离开", next: "win", effects: {} }
+                ]
+            },
+            darkPath: {
+                text: "这条矿道更窄，空气更加稀薄。你听到前方有流水声，也许有地下河。矿灯照在潮湿的墙壁上，反射出诡异的光芒。",
+                choices: [
+                    { text: "💧 朝流水声走去", next: "undergroundRiver", effects: { light: -3 } },
+                    { text: "↩️ 返回岔路口", next: "deepMine", effects: { light: -3 } },
+                    { text: "🔍 检查墙壁上的裂缝", next: "checkCrack", effects: {} }
+                ]
+            },
+            checkCrack: {
+                text: "你凑近裂缝，突然一只惨白的手从里面伸出来抓住了你的手腕！",
+                choices: [
+                    { text: "⚔️ 挣扎", next: "escapeHand", effects: { hp: -10, sanity: -10 } }
+                ]
+            },
+            escapeHand: {
+                text: "你拼命挣扎，终于挣脱了。裂缝里传来低沉的呻吟声。你赶紧离开。",
+                choices: [
+                    { text: "继续前进", next: "undergroundRiver", effects: { light: -3 } }
+                ]
+            },
+            undergroundRiver: {
+                text: "你来到一条地下河边。水很清澈，但很深。对岸似乎有发光的东西——像是某种矿石或者宝藏。水流很急，掉下去可能就上不来了。",
+                choices: [
+                    { text: "🏊 游泳过河", next: "swimRiver", effects: { hp: -10, light: -10 } },
+                    { text: "🔍 沿河岸走", next: "riverBank", effects: { light: -5 } },
+                    { text: "🌉 找桥过河", next: "findBridge", effects: { light: -8 } }
+                ]
+            },
+            findBridge: {
+                text: "你沿河走了很久，终于发现了一座木桥。但桥已经腐朽，看起来随时会断。",
+                choices: [
+                    { text: "🌉 小心过桥", next: "crossBridge", effects: { light: -5 } },
+                    { text: "继续沿河走", next: "longWalk", effects: { sanity: -10, light: -8 } }
+                ]
+            },
+            crossBridge: {
+                text: "你小心翼翼地过桥，桥在中间断裂！你抓住了一根绳子，荡到了对岸。",
+                choices: [
+                    { text: "继续", next: "treasureRoom", effects: { hp: -5 } }
+                ]
+            },
+            longWalk: {
+                text: "你走了很久，腿都快断了。终于发现了一处可以涉水的浅滩。",
+                choices: [
+                    { text: "涉水过河", next: "treasureRoom", effects: { hp: -10, light: -5 } }
+                ]
+            },
+            swimRiver: {
+                text: "你跳进河里，突然有什么东西抓住了你的脚！是水鬼！冰凉的手指死死扣住你的脚踝。",
+                choices: [
+                    { text: "⚔️ 挣扎", next: "fightWaterGhost", effects: { hp: -20, light: -10 } },
+                    { text: "💊 丢出镇定剂", next: "calmWaterGhost", effects: {}, requiresItem: "镇定剂" }
+                ]
+            },
+            fightWaterGhost: {
+                text: "你拼命挣扎，终于摆脱了水鬼，但已经筋疲力尽，呛了好几口水。",
+                choices: [
+                    { text: "爬到对岸", next: "treasureRoom", effects: { hp: -10 } }
+                ]
+            },
+            calmWaterGhost: {
+                text: "镇定剂在水中溶解，水鬼平静了下来，甚至帮你推到了对岸。你安全上岸。",
+                choices: [
+                    { text: "探索对岸", next: "treasureRoom", effects: {} }
+                ]
+            },
+            riverBank: {
+                text: "你沿着河岸走，发现地上有一些奇怪的脚印，很大，不像是人类的。",
+                choices: [
+                    { text: "跟随脚印", next: "followTracks", effects: { light: -5 } },
+                    { text: "继续沿河走", next: "findBridge", effects: { light: -5 } }
+                ]
+            },
+            followTracks: {
+                text: "脚印带你到了一个巨大的洞穴。洞穴中央有一块发光的石头，但旁边躺着一只巨大的熊！它在睡觉。",
+                choices: [
+                    { text: "悄悄拿走石头", next: "stealStone", effects: { sanity: -10 } },
+                    { text: "绕开洞穴", next: "findBridge", effects: { light: -5 } },
+                    { text: "🔦 用手电筒照熊", next: "flashlightBear", effects: {}, requiresItem: "手摇手电筒" }
+                ]
+            },
+            flashlightBear: {
+                text: "手电筒的强光照醒了熊！它愤怒地站起来，向你冲来！",
+                choices: [
+                    { text: "🏃 逃跑", next: "runFromBear", effects: { hp: -15, sanity: -15 } }
+                ]
+            },
+            runFromBear: {
+                text: "你拼命逃跑，熊在后面紧追不舍。你跳进河里，熊不会游泳，放弃了追你。",
+                choices: [
+                    { text: "游到对岸", next: "treasureRoom", effects: { hp: -10 } }
+                ]
+            },
+            stealStone: {
+                text: "你悄悄靠近，拿走了发光的石头。熊翻了个身，但没有醒。你屏住呼吸离开了洞穴。",
+                choices: [
+                    { text: "继续前进", next: "treasureRoom", effects: { sanity: +10 } }
+                ]
+            },
+            treasureRoom: {
+                text: "你发现了一个隐藏的矿室，里面堆积着一些发光的水晶和一块巨大的能量石。但同时，地面震动，一只巨大的蝙蝠怪物从上方俯冲下来！它有两个人那么大！",
+                choices: [
+                    { text: "⚔️ 战斗", next: "fightBat", effects: { hp: -30, light: -10 } },
+                    { text: "🏃 拿走能量石逃跑", next: "runWithGem", effects: { hp: -15, light: -5 } },
+                    { text: "💡 用手电筒照它", next: "flashlightBat", effects: { light: -10 }, requiresItem: "手摇手电筒" }
+                ]
+            },
+            fightBat: {
+                text: "你与蝙蝠怪物搏斗，身受重伤但最终击败了它。怪物倒在地上化为灰尘。",
+                choices: [
+                    { text: "拿走能量石", next: "win", effects: {} }
+                ]
+            },
+            runWithGem: {
+                text: "你抓起能量石拼命逃跑，蝙蝠在后面追你。你跳进一个矿车，顺着轨道冲出了矿井。",
+                choices: [
+                    { text: "逃离", next: "win", effects: {} }
+                ]
+            },
+            flashlightBat: {
+                text: "手电筒的强光让蝙蝠怪物尖叫着飞走了。你安全地拿走了能量石和水晶。",
+                choices: [
+                    { text: "离开矿井", next: "win", effects: { sanity: +10 } }
+                ]
+            },
+            minerGhost: {
+                text: "你走近那个身影，他突然转过身来——是一个活着的矿工！他满脸惊恐地说：'快走！这里被诅咒了！有东西在深处！' 话还没说完，地面裂开，他被吞没了。",
+                choices: [
+                    { text: "🏃 朝反方向跑", next: "escapePath", effects: { sanity: -15, light: -5 } },
+                    { text: "🔍 查看裂缝", next: "lookCrack", effects: { sanity: -20, light: -5 } }
+                ]
+            },
+            lookCrack: {
+                text: "你往裂缝里看，一只巨大的眼睛正在看着你！眼球布满了血丝，直直地盯着你。",
+                choices: [],
+                isDeath: true,
+                deathMsg: "裂缝中的怪物将你拉入了深渊，你成为了它的食物。"
+            },
+            escapePath: {
+                text: "你跑到了一个新区域，这里有一个老旧的升降梯。看起来还能用。",
+                choices: [
+                    { text: "⬆️ 坐升降梯上去", next: "elevator", effects: { light: -5 } },
+                    { text: "继续探索", next: "deepMine", effects: { light: -5 } }
+                ]
+            },
+            elevator: {
+                text: "升降梯缓缓上升，但中途卡住了。你听到钢缆断裂的声音，升降梯开始下坠！",
+                choices: [
+                    { text: "跳向旁边的平台", next: "jumpToPlatform", effects: { hp: -15 } }
+                ]
+            },
+            jumpToPlatform: {
+                text: "你奋力一跳，抓住了平台的边缘。升降梯坠入深渊，但你活了下来。你发现自己在一楼出口附近！",
+                choices: [
+                    { text: "🏃 跑向出口", next: "win", effects: { hp: -5 } }
+                ]
+            },
+            win: {
+                text: "你冲出了矿井，阳光刺眼。回头望去，矿井入口已经消失在岩石中。你手里紧紧握着能量石，成功逃脱了废弃矿井的诅咒！",
+                choices: [],
+                isWin: true
+            }
+        };
+        
+        // ========== 渲染函数 ==========
+        function renderScene(id) {
+            if (!gameActive) return;
+            if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+            if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+            if (light <= 0 && id !== 'win') {
+                handleDeath('矿灯熄灭了，你在完全的黑暗中迷失了方向，永远困在了矿井中...');
+                return;
+            }
+            
+            const scene = scenes[id];
+            if (!scene) {
+                console.error('Scene not found:', id);
+                return;
+            }
+            
+            currentNode = id;
+            
+            if (scene.isWin) {
+                handleWin();
+                return;
+            }
+            if (scene.isDeath) {
+                handleDeath(scene.deathMsg);
+                return;
+            }
+            
+            document.getElementById('storyText').innerHTML = scene.text;
+            
+            if (scene.choices && scene.choices.length > 0) {
+                let choicesHtml = '';
+                for (let i = 0; i < scene.choices.length; i++) {
+                    const choice = scene.choices[i];
+                    let additionalClass = '';
+                    if (choice.next === 'win') additionalClass = 'win-option';
+                    else if (choice.effects && choice.effects.hp && choice.effects.hp <= -20) additionalClass = 'death-option';
+                    let reqText = choice.requiresItem ? ` (需要:${choice.requiresItem})` : '';
+                    choicesHtml += `<button class="choice-btn ${additionalClass}" data-choice-index="${i}">${choice.text}${reqText}</button>`;
+                }
+                document.getElementById('choiceButtons').innerHTML = choicesHtml;
+                
+                // 绑定事件 - 关键修复点
+                const btns = document.querySelectorAll('#choiceButtons .choice-btn');
+                btns.forEach(btn => {
+                    // 移除旧事件避免重复绑定
+                    btn.removeEventListener('click', btn._handler);
+                    const handler = () => {
+                        if (!gameActive) return;
+                        const idx = parseInt(btn.getAttribute('data-choice-index'));
+                        const choice = scene.choices[idx];
+                        if (!choice) return;
+                        
+                        if (choice.requiresItem) {
+                            const backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                            const hasItem = backpack.some(item => item.name === choice.requiresItem);
+                            if (!hasItem) {
+                                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                                return;
+                            }
+                        }
+                        
+                        if (choice.effects) {
+                            applyEffects(choice.effects);
+                            if (!gameActive) return;
+                        }
+                        
+                        if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+                        if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+                        
+                        if (choice.next) {
+                            renderScene(choice.next);
+                        }
+                    };
+                    btn._handler = handler;
+                    btn.addEventListener('click', handler);
+                });
+            } else {
+                document.getElementById('choiceButtons').innerHTML = '';
+            }
+            updateItemButtons();
+        }
+        
+        function resetGame() {
+            hp = 100;
+            sanity = 100;
+            light = 100;
+            gameActive = true;
+            updateStats();
+            renderScene('start');
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            addEventLog('重新开始挑战废弃矿井');
+        }
+        
+        // 初始化
+        renderScene('start');
+        updateStats();
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        // 时间更新
+        setInterval(() => {
+            let now = new Date();
+            let timeStr = `🕸️ ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            document.querySelectorAll('.status-time').forEach(el => el.textContent = timeStr);
+        }, 1000);
     </script>
 </body>
 </html>
