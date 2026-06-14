@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>迷雾森林 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .story-text { background: rgba(0,0,0,0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; border-left: 3px solid #2a6a2a; }
+        .choice-buttons { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .choice-btn { background: #1a1210; border: 1px solid #6a3a2a; padding: 12px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+        .choice-btn:active { transform: scale(0.98); background: #2a1a1a; }
+        .choice-btn.death-option { border-color: #8a2a2a; color: #ff8a6a; }
+        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #4a2a2a; }
+        .item-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .item-btn { background: #2a1a1a; border: 1px solid #6a3a2a; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; color: #dbbc8c; cursor: pointer; }
+        .status-bars { display: flex; gap: 16px; margin-bottom: 16px; justify-content: space-between; }
+        .status-item { flex: 1; background: #1a1210; padding: 8px; border-radius: 8px; text-align: center; }
+        .status-label { font-size: 0.7rem; color: #7a5a4a; }
+        .status-value { font-size: 1.2rem; font-weight: bold; color: #e8a87c; }
+        .reset-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 16px; cursor: pointer; width: 100%; }
+        .back-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar"><span>⚠️ 信号丢失</span><span class="status-time">🕸️ 00:00:00</span><span>🔋 诅咒</span></div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='../pages/profile.html'"></div>
+                <div class="player-stats" onclick="location.href='../pages/profile.html'">
+                    <div class="player-name">▶ 玩家「125」</div>
+                    <div class="player-id">编号：011 | 理智值：43%</div>
+                </div>
+                <div class="settings-icon" onclick="location.href='../pages/settings.html'">⚙️</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="resource-bar">
+                <span class="resource-label">💎 理智碎片</span>
+                <span class="resource-value" id="shardsValue">0</span>
+                <span style="flex:1"></span>
+                <span class="resource-label" style="cursor:pointer;" onclick="location.href='../pages/backpack.html'">🎒 背包</span>
+            </div>
+
+            <div class="status-bars">
+                <div class="status-item"><div class="status-label">❤️ 生命值</div><div class="status-value" id="hpValue">100</div></div>
+                <div class="status-item"><div class="status-label">🧠 理智值</div><div class="status-value" id="sanityValue">100</div></div>
+            </div>
+
+            <div class="dungeon-header">
+                <h2 class="glitch-text">[ 迷雾森林 ]</h2>
+                <div class="dungeon-name">难度 ★★☆☆☆</div>
+            </div>
+
+            <div class="story-text" id="storyText">加载中...</div>
+            <div class="choice-buttons" id="choiceButtons"></div>
+
+            <div class="use-item-area" id="useItemArea" style="display: none;">
+                <div class="use-item-title">📦 使用道具</div>
+                <div class="item-buttons" id="itemButtons"></div>
+            </div>
+
+            <button class="reset-btn" id="resetBtn" style="display: none;">🔄 重新开始副本</button>
+            <button class="back-btn" id="backBtn" style="display: none;" onclick="location.href='../index.html'">← 返回副本列表</button>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='../pages/forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='../pages/shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='../pages/lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='../pages/mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='../pages/friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        let hp = 100, sanity = 100, gameActive = true;
+        
+        function addEventLog(msg) {
+            let log = JSON.parse(localStorage.getItem('eventLog') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+            log.unshift({ time: timeStr, message: msg });
+            if (log.length > 50) log.pop();
+            localStorage.setItem('eventLog', JSON.stringify(log));
+        }
+
+        function updateStats() {
+            document.getElementById('hpValue').textContent = Math.max(0, hp);
+            document.getElementById('sanityValue').textContent = Math.max(0, sanity);
+            let shards = localStorage.getItem('sanityShards') || 100;
+            document.getElementById('shardsValue').textContent = shards;
+        }
+
+        function applyEffects(effects) {
+            if (effects.hp) { hp += effects.hp; if (hp <= 0) { hp = 0; gameActive = false; } }
+            if (effects.sanity) { sanity += effects.sanity; if (sanity <= 0) { sanity = 0; gameActive = false; } }
+            updateStats();
+            if (effects.hp && effects.hp < 0) addEventLog(`生命-${Math.abs(effects.hp)}`);
+            if (effects.sanity && effects.sanity < 0) addEventLog(`理智-${Math.abs(effects.sanity)}`);
+        }
+
+        function updateItemButtons() {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            if (backpack.length === 0) { document.getElementById('useItemArea').style.display = 'none'; return; }
+            document.getElementById('useItemArea').style.display = 'block';
+            document.getElementById('itemButtons').innerHTML = backpack.map((item, idx) => 
+                `<button class="item-btn" data-item-index="${idx}" data-item-name="${item.name}">${item.icon || '📦'} ${item.name}</button>`
+            ).join('');
+            document.querySelectorAll('.item-btn').forEach(btn => btn.addEventListener('click', () => useItem(btn.getAttribute('data-item-name'))));
+        }
+
+        function useItem(itemName) {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            let idx = backpack.findIndex(i => i.name === itemName);
+            if (idx === -1) return;
+            if (itemName === '镇定剂') { hp = Math.min(100, hp + 20); sanity = Math.min(100, sanity + 15); addEventLog('使用镇定剂，生命+20，理智+15'); alert('镇定剂让你冷静下来'); }
+            else if (itemName === '手摇手电筒') { sanity = Math.min(100, sanity + 10); addEventLog('手电筒照亮了森林，理智+10'); alert('手电筒驱散了迷雾'); }
+            else if (itemName === '生锈的十字架') { sanity = Math.min(100, sanity + 15); addEventLog('十字架发出微光，理智+15'); alert('十字架让你感到被保护'); }
+            else { alert('森林中这个道具没有效果'); return; }
+            backpack.splice(idx, 1);
+            localStorage.setItem('backpack', JSON.stringify(backpack));
+            updateStats();
+            updateItemButtons();
+        }
+
+        function handleDeath(msg) {
+            addEventLog(msg);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.deaths++;
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            document.getElementById('storyText').innerHTML = `<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${msg}`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            gameActive = false;
+        }
+
+        function handleWin() {
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
+            let reward = 45;
+            shards += reward;
+            localStorage.setItem('sanityShards', shards);
+            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+            stats.wins++;
+            if (!stats.completedDungeons.includes('迷雾森林')) stats.completedDungeons.push('迷雾森林');
+            localStorage.setItem('playerStats', JSON.stringify(stats));
+            addEventLog(`通关迷雾森林，获得${reward}理智碎片`);
+            document.getElementById('storyText').innerHTML = `<span style="color:#7ec850;">⭐ 通关！ ⭐</span><br><br>你成功走出了迷雾森林！获得了 ${reward} 理智碎片！`;
+            document.getElementById('choiceButtons').innerHTML = '';
+            document.getElementById('useItemArea').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            gameActive = false;
+            updateStats();
+        }
+
+        const scenes = {
+            start: {
+                text: "浓雾笼罩着古老的森林，参天大树的枝叶遮蔽了天空。你只能依靠偶尔透下的月光辨别方向。远处，一座小木屋的轮廓若隐若现...突然，你听到树枝断裂的声音，有什么东西在跟着你。",
+                choices: [
+                    { text: "🏠 前往小木屋", next: "cabin", effects: {} },
+                    { text: "🌲 深入树林", next: "deepForest", effects: {} },
+                    { text: "🏃 寻找出口", next: "lost", effects: {} }
+                ]
+            },
+            lost: {
+                text: "你在森林中迷失了方向，天色越来越暗。你听到了狼嚎声，而且越来越近！",
+                choices: [
+                    { text: "🐺 朝狼嚎方向走", next: "wolves", effects: {} },
+                    { text: "🔥 生火等待天亮", next: "wait", effects: { sanity: -5 } },
+                    { text: "🌳 爬树躲避", next: "climbTree", effects: {} }
+                ]
+            },
+            climbTree: {
+                text: "你爬上一棵大树，狼群在树下徘徊了一个小时才离开。但你不小心踩空摔了下来。",
+                choices: [
+                    { text: "继续前进", next: "morning", effects: { hp: -15 } }
+                ]
+            },
+            wolves: {
+                text: "你遇到了狼群！五双发光的眼睛在黑暗中盯着你。头狼向你扑来！",
+                choices: [
+                    { text: "⚔️ 战斗", next: "fightWolves", effects: { hp: -35, sanity: -15 } },
+                    { text: "🏃 逃跑", next: "escapeWolves", effects: { hp: -20, sanity: -20 } }
+                ]
+            },
+            fightWolves: {
+                text: "你勉强击退了狼群，但身受重伤，浑身是血。你找到了回程的路。",
+                choices: [
+                    { text: "离开森林", next: "win", effects: {} }
+                ]
+            },
+            escapeWolves: {
+                text: "你拼命奔跑，被树根绊倒多次，终于甩掉了狼群，但完全迷失了方向。",
+                choices: [
+                    { text: "等待天亮", next: "morning", effects: { hp: -10 } }
+                ]
+            },
+            wait: {
+                text: "你生了一堆火，度过了漫长的夜晚。但天亮时发现，你的食物和水都耗尽了。",
+                choices: [
+                    { text: "继续探索", next: "morning", effects: { sanity: -10 } }
+                ]
+            },
+            morning: {
+                text: "天亮了，雾气稍微散去一些。你看到一个方向有烟升起，可能是有人家。",
+                choices: [
+                    { text: "朝烟的方向走", next: "cabin", effects: {} },
+                    { text: "继续深入森林", next: "deepForest", effects: {} }
+                ]
+            },
+            cabin: {
+                text: "小木屋的木门虚掩着。你推开门，看到屋内有一个壁炉，柴火还在燃烧。桌上摆着一碗热气腾腾的汤，但周围没有人影。突然，一个苍老的声音从壁炉方向传来：'喝下它，你会得到力量...'",
+                choices: [
+                    { text: "🍲 喝汤", next: "drinkSoup", effects: {} },
+                    { text: "🔍 搜查屋子", next: "searchCabin", effects: {} },
+                    { text: "🚪 离开小木屋", next: "forestPath", effects: {} }
+                ]
+            },
+            drinkSoup: {
+                text: "你喝了一口汤，感觉身体暖和了起来。但头开始发晕，眼前出现了重影...你意识到自己被下药了！",
+                choices: [
+                    { text: "💊 服用镇定剂", next: "curePoison", effects: {}, requiresItem: "镇定剂" },
+                    { text: "😵 硬撑", next: "poisoned", effects: { hp: -25, sanity: -20 } }
+                ]
+            },
+            curePoison: {
+                text: "镇定剂发挥了作用，你清醒了过来。你发现汤里有毒，幸好及时解除了。巫婆从阴影中现身，惊讶于你的抵抗力。",
+                choices: [
+                    { text: "⚔️ 与巫婆战斗", next: "fightWitch", effects: { hp: -20 } },
+                    { text: "🏃 逃跑", next: "forestPath", effects: { sanity: -10 } }
+                ]
+            },
+            fightWitch: {
+                text: "你与巫婆搏斗，最终将她击退。她在消失前留下了一颗发光的宝石。",
+                choices: [
+                    { text: "💎 捡起宝石", next: "win", effects: {} }
+                ]
+            },
+            poisoned: {
+                text: "你的身体越来越虚弱，毒性正在蔓延。巫婆从阴影中走出，冷笑着看着你。",
+                choices: [
+                    { text: "求饶", next: "witchEnd", effects: {} }
+                ]
+            },
+            witchEnd: {
+                text: "巫婆将你变成了森林里的一棵树。永远留在了这里。",
+                choices: [],
+                isDeath: true, deathMsg: "你被巫婆变成了树，永远留在了迷雾森林。"
+            },
+            searchCabin: {
+                text: "你在床底下发现了一本古老的日记。里面记载着森林的诅咒和解除方法。但翻看时，日记突然燃烧起来，烧伤了你的手。",
+                choices: [
+                    { text: "继续探索", next: "forestPath", effects: { hp: -10, sanity: +5 } }
+                ]
+            },
+            forestPath: {
+                text: "你走在林间小路上，雾气越来越浓。前方出现一个岔路口，左边有微弱的灯光，右边一片漆黑。",
+                choices: [
+                    { text: "🕯️ 走向灯光", next: "lightPath", effects: {} },
+                    { text: "🌑 走向黑暗", next: "darkPath", effects: {} }
+                ]
+            },
+            lightPath: {
+                text: "你走向灯光，发现是一个营地。几个幸存者正在那里生火。他们欢迎你加入，但半夜你发现他们其实是森林的幽灵！",
+                choices: [
+                    { text: "🏃 逃跑", next: "deepForest", effects: { sanity: -20 } },
+                    { text: "⚔️ 战斗", next: "fightGhosts", effects: { hp: -25 } }
+                ]
+            },
+            fightGhosts: {
+                text: "你与幽灵战斗到天亮，最终他们消散了。阳光照在你身上，你找到了出路。",
+                choices: [
+                    { text: "离开森林", next: "win", effects: {} }
+                ]
+            },
+            darkPath: {
+                text: "你走向黑暗，突然地面塌陷，你掉进了一个陷阱。里面满是尖锐的木桩！",
+                choices: [
+                    { text: "挣扎爬出", next: "escapeTrap", effects: { hp: -40, sanity: -15 } }
+                ]
+            },
+            escapeTrap: {
+                text: "你艰难地爬出陷阱，浑身是伤。远处传来脚步声，是森林的守护者——树精！",
+                choices: [
+                    { text: "🌳 躲在大树后", next: "hideFromTreant", effects: { sanity: -10 } },
+                    { text: "🏃 拼命跑", next: "runFromTreant", effects: { hp: -15 } }
+                ]
+            },
+            hideFromTreant: {
+                text: "你躲在树后，树精从你身边走过，没有发现你。你趁机朝反方向跑去。",
+                choices: [
+                    { text: "继续前进", next: "morning", effects: {} }
+                ]
+            },
+            runFromTreant: {
+                text: "你拼命奔跑，树精在后面紧追不舍。你跳进一条溪流，顺着水流漂到了森林边缘。",
+                choices: [
+                    { text: "离开森林", next: "win", effects: {} }
+                ]
+            },
+            deepForest: {
+                text: "你越走越深，树木越来越密集。突然，你听到身后有沙沙声，回头却什么都没看到。但你注意到，周围的树上有很多刻痕，像是爪痕。",
+                choices: [
+                    { text: "🌿 向声音来源走去", next: "creature", effects: {} },
+                    { text: "🏃 快步离开", next: "forestPath", effects: { sanity: -10 } }
+                ]
+            },
+            creature: {
+                text: "你走近一看，是一只巨大的黑色生物，它有着发光的红眼。它发现了你，发出低吼。",
+                choices: [
+                    { text: "🔦 用手电筒照它", next: "flashlightBeast", effects: {}, requiresItem: "手摇手电筒" },
+                    { text: "⚔️ 战斗", next: "fightBeast", effects: { hp: -45 } },
+                    { text: "🏃 逃跑", next: "runFromBeast", effects: { hp: -20, sanity: -15 } }
+                ]
+            },
+            flashlightBeast: {
+                text: "手电筒的强光让怪物尖叫着逃走了。你惊魂未定，继续前进。",
+                choices: [
+                    { text: "继续", next: "morning", effects: { sanity: +5 } }
+                ]
+            },
+            fightBeast: {
+                text: "你与怪物搏斗，但它的力量远超你的想象。",
+                choices: [],
+                isDeath: true, deathMsg: "你被森林中的怪物撕碎了。"
+            },
+            runFromBeast: {
+                text: "你拼命逃跑，怪物在后面追你。你跳进一个树洞，怪物在外面徘徊了很久才离开。",
+                choices: [
+                    { text: "从树洞出来", next: "morning", effects: { hp: -10 } }
+                ]
+            },
+            win: {
+                text: "你终于走出了迷雾森林，阳光洒在身上，感到无比温暖。森林的诅咒被你打破了！",
+                choices: [],
+                isWin: true
+            }
+        };
+
+        function renderScene(id) {
+            if (!gameActive) return;
+            let scene = scenes[id];
+            if (!scene) return;
+            if (scene.isWin) { handleWin(); return; }
+            if (scene.isDeath) { handleDeath(scene.deathMsg); return; }
+            if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+            if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+            
+            document.getElementById('storyText').innerHTML = scene.text;
+            if (scene.choices && scene.choices.length > 0) {
+                document.getElementById('choiceButtons').innerHTML = scene.choices.map((c, i) => {
+                    let req = c.requiresItem ? ` (需要:${c.requiresItem})` : '';
+                    let deathClass = (c.effects && c.effects.hp && c.effects.hp <= -30) ? 'death-option' : '';
+                    return `<button class="choice-btn ${deathClass}" data-choice="${i}">${c.text}${req}</button>`;
+                }).join('');
+                document.querySelectorAll('.choice-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        let idx = parseInt(btn.getAttribute('data-choice'));
+                        let choice = scene.choices[idx];
+                        if (choice.requiresItem) {
+                            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                            if (!backpack.some(i => i.name === choice.requiresItem)) {
+                                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                                return;
+                            }
+                        }
+                        if (choice.effects) applyEffects(choice.effects);
+                        if (choice.next) renderScene(choice.next);
+                    });
+                });
+            } else {
+                document.getElementById('choiceButtons').innerHTML = '';
+            }
+            updateItemButtons();
+        }
+
+        function resetGame() {
+            hp = 100; sanity = 100; gameActive = true;
+            updateStats();
+            renderScene('start');
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+        }
+
+        renderScene('start');
+        updateStats();
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        setInterval(() => {
+            let now = new Date();
+            document.querySelectorAll('.status-time').forEach(el => el.textContent = `🕸️ ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`);
+        }, 1000);
+    </script>
+</body>
+</html>
