@@ -361,20 +361,24 @@
                     return `<button class="choice-btn ${deathClass}" data-choice="${i}">${c.text}${req}</button>`;
                 }).join('');
                 document.querySelectorAll('.choice-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        let idx = parseInt(btn.getAttribute('data-choice'));
-                        let choice = scene.choices[idx];
-                        if (choice.requiresItem) {
-                            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
-                            if (!backpack.some(i => i.name === choice.requiresItem)) {
-                                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
-                                return;
-                            }
+                btn.addEventListener('click', () => {
+                    if (!gameActive) return;  // ← 添加这一行
+                    let idx = parseInt(btn.getAttribute('data-choice'));
+                    let choice = scene.choices[idx];
+                    if (choice.requiresItem) {
+                        let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                        if (!backpack.some(i => i.name === choice.requiresItem)) {
+                            alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                            return;
                         }
-                        if (choice.effects) applyEffects(choice.effects);
-                        if (choice.next) renderScene(choice.next);
-                    });
+                    }
+                    if (choice.effects) applyEffects(choice.effects);
+                    // 应用效果后再次检查生命/理智
+                    if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+                    if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+                    if (choice.next) renderScene(choice.next);
                 });
+            });
             } else {
                 document.getElementById('choiceButtons').innerHTML = '';
             }
