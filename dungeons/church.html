@@ -90,12 +90,25 @@
             document.getElementById('storyText').innerHTML = s.text;
             if (s.choices && s.choices.length) {
                 document.getElementById('choiceButtons').innerHTML = s.choices.map((c,i)=>`<button class="choice-btn ${c.next==='win'?'win-option':(c.effects?.hp&&c.effects.hp<=-30?'death-option':'')}" data-choice="${i}">${c.text}${c.requiresItem?` (需要:${c.requiresItem})`:''}</button>`).join('');
-                document.querySelectorAll('.choice-btn').forEach(btn=>btn.addEventListener('click',()=>{
-                    let c = s.choices[parseInt(btn.getAttribute('data-choice'))];
-                    if(c.requiresItem){ let b=JSON.parse(localStorage.getItem('backpack')||'[]'); if(!b.some(i=>i.name===c.requiresItem)){ alert(`需要 ${c.requiresItem}`); return; } }
-                    if(c.effects) applyEffects(c.effects);
-                    if(c.next) renderScene(c.next);
-                }));
+                document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (!gameActive) return;  // ← 添加这一行
+        let idx = parseInt(btn.getAttribute('data-choice'));
+        let choice = scene.choices[idx];
+        if (choice.requiresItem) {
+            let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+            if (!backpack.some(i => i.name === choice.requiresItem)) {
+                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                return;
+            }
+        }
+        if (choice.effects) applyEffects(choice.effects);
+        // 应用效果后再次检查生命/理智
+        if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+        if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
+        if (choice.next) renderScene(choice.next);
+    });
+});
             } else document.getElementById('choiceButtons').innerHTML = '';
         }
         function resetGame() { hp=100; sanity=100; gameActive=true; updateStats(); renderScene('start'); document.getElementById('resetBtn').style.display='none'; document.getElementById('backBtn').style.display='none'; }
