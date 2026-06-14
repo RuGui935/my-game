@@ -130,17 +130,63 @@
         }
 
         function handleDeath(msg) {
-            addEventLog(msg);
-            let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
-            stats.deaths++;
-            localStorage.setItem('playerStats', JSON.stringify(stats));
-            document.getElementById('storyText').innerHTML = `<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${msg}`;
-            document.getElementById('choiceButtons').innerHTML = '';
-            document.getElementById('useItemArea').style.display = 'none';
-            document.getElementById('resetBtn').style.display = 'block';
-            document.getElementById('backBtn').style.display = 'block';
-            gameActive = false;
-        }
+    gameActive = false;
+    addEventLog(msg);
+    let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
+    stats.deaths++;
+    localStorage.setItem('playerStats', JSON.stringify(stats));
+    document.getElementById('storyText').innerHTML = `<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${msg}`;
+    document.getElementById('choiceButtons').innerHTML = '';
+    document.getElementById('useItemArea').style.display = 'none';
+    document.getElementById('resetBtn').style.display = 'block';
+    document.getElementById('backBtn').style.display = 'block';
+    alert(msg);  // 添加弹窗提示
+}
+
+function renderScene(id) {
+    if (!gameActive) return;
+    // 在渲染前检查生命值和理智值
+    if (hp <= 0) {
+        handleDeath('你的生命值归零，倒在了副本中...');
+        return;
+    }
+    if (sanity <= 0) {
+        handleDeath('你的理智彻底崩溃，永远困在了这里...');
+        return;
+    }
+    
+    let scene = scenes[id];
+    if (!scene) return;
+    if (scene.isWin) { handleWin(); return; }
+    if (scene.isDeath) { handleDeath(scene.deathMsg); return; }
+    
+    document.getElementById('storyText').innerHTML = scene.text;
+    if (scene.choices && scene.choices.length > 0) {
+        document.getElementById('choiceButtons').innerHTML = scene.choices.map((c, i) => {
+            let req = c.requiresItem ? ` (需要:${c.requiresItem})` : '';
+            return `<button class="choice-btn" data-choice="${i}">${c.text}${req}</button>`;
+        }).join('');
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!gameActive) return;  // 关键：游戏结束后不再响应点击
+                let idx = parseInt(btn.getAttribute('data-choice'));
+                let choice = scene.choices[idx];
+                if (choice.requiresItem) {
+                    let backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+                    if (!backpack.some(i => i.name === choice.requiresItem)) {
+                        alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                        return;
+                    }
+                }
+                if (choice.effects) applyEffects(choice.effects);
+                if (choice.next) renderScene(choice.next);
+            });
+        });
+    } else {
+        document.getElementById('choiceButtons').innerHTML = '';
+    }
+    updateItemButtons();
+}
 
         function handleWin() {
             let shards = parseInt(localStorage.getItem('sanityShards') || '100');
@@ -289,12 +335,14 @@
         }
 
         function resetGame() {
-            hp = 100; sanity = 100; gameActive = true;
-            updateStats();
-            renderScene('start');
-            document.getElementById('resetBtn').style.display = 'none';
-            document.getElementById('backBtn').style.display = 'none';
-        }
+    hp = 100;
+    sanity = 100;
+    gameActive = true;
+    updateStats();
+    renderScene('start');
+    document.getElementById('resetBtn').style.display = 'none';
+    document.getElementById('backBtn').style.display = 'none';
+}
 
         renderScene('start');
         updateStats();
