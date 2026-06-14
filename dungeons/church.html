@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>血月教堂 - 无限回廊</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .story-text { background: rgba(0,0,0,0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; border-left: 3px solid #8a2a2a; }
+        .choice-buttons { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .choice-btn { background: #1a1210; border: 1px solid #6a3a2a; padding: 12px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+        .choice-btn:active { transform: scale(0.98); background: #2a1a1a; }
+        .choice-btn.death-option { border-color: #8a2a2a; color: #ff6b6b; background: #2a0a0a; }
+        .choice-btn.win-option { border-color: #4a8a3a; color: #8aff6b; }
+        .status-bars { display: flex; gap: 16px; margin-bottom: 16px; justify-content: space-between; }
+        .status-item { flex: 1; background: #1a1210; padding: 8px; border-radius: 8px; text-align: center; }
+        .reset-btn, .back-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="status-bar"><span>⚠️ 信号丢失</span><span class="status-time">🕸️ 00:00:00</span><span>🔋 诅咒</span></div>
+            <div class="player-info">
+                <div class="player-avatar" onclick="location.href='../pages/profile.html'"></div>
+                <div class="player-stats" onclick="location.href='../pages/profile.html'"><div class="player-name">▶ 玩家「125」</div><div class="player-id">编号：011 | 理智值：43%</div></div>
+                <div class="settings-icon" onclick="location.href='../pages/settings.html'">⚙️</div>
+            </div>
+        </header>
+        <main class="main-content">
+            <div class="resource-bar"><span class="resource-label">💎 理智碎片</span><span class="resource-value" id="shardsValue">0</span><span style="flex:1"></span><span onclick="location.href='../pages/backpack.html'" style="cursor:pointer;">🎒 背包</span></div>
+            <div class="status-bars"><div class="status-item"><div class="status-label">❤️ 生命值</div><div class="status-value" id="hpValue">100</div></div><div class="status-item"><div class="status-label">🧠 理智值</div><div class="status-value" id="sanityValue">100</div></div></div>
+            <div class="dungeon-header"><h2 class="glitch-text">[ 血月教堂 ]</h2><div class="dungeon-name">难度 ★★★★☆</div></div>
+            <div class="story-text" id="storyText">加载中...</div>
+            <div class="choice-buttons" id="choiceButtons"></div>
+            <button class="reset-btn" id="resetBtn" style="display: none;">🔄 重新开始</button>
+            <button class="back-btn" id="backBtn" style="display: none;" onclick="location.href='../index.html'">← 返回</button>
+        </main>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="location.href='../pages/forum.html'">💬<span class="nav-label">论坛</span></div>
+            <div class="nav-item" onclick="location.href='../index.html'">📖<span class="nav-label">副本</span></div>
+            <div class="nav-item" onclick="location.href='../pages/shop.html'">🛒<span class="nav-label">商城</span></div>
+            <div class="nav-item" onclick="location.href='../pages/lottery.html'">🎁<span class="nav-label">奖池</span></div>
+            <div class="nav-item" onclick="location.href='../pages/mail.html'">✉️<span class="nav-label">邮箱</span></div>
+            <div class="nav-item" onclick="location.href='../pages/friend.html'">👥<span class="nav-label">好友</span></div>
+        </nav>
+    </div>
+
+    <script>
+        let hp = 100, sanity = 100, gameActive = true;
+        function addEventLog(m) { let l=JSON.parse(localStorage.getItem('eventLog')||'[]'); l.unshift({time:new Date().toLocaleTimeString(),message:m}); if(l.length>50)l.pop(); localStorage.setItem('eventLog',JSON.stringify(l)); }
+        function updateStats() { document.getElementById('hpValue').textContent=Math.max(0,hp); document.getElementById('sanityValue').textContent=Math.max(0,sanity); document.getElementById('shardsValue').textContent=localStorage.getItem('sanityShards')||100; }
+        function applyEffects(e) { if(e.hp){hp+=e.hp;if(hp<=0)gameActive=false;} if(e.sanity){sanity+=e.sanity;if(sanity<=0)gameActive=false;} updateStats(); if(e.hp&&e.hp<0)addEventLog(`生命-${Math.abs(e.hp)}`); if(e.sanity&&e.sanity<0)addEventLog(`理智-${Math.abs(e.sanity)}`); }
+        function handleDeath(m) { addEventLog(m); let s=JSON.parse(localStorage.getItem('playerStats')||'{"wins":0,"deaths":0,"completedDungeons":[]}'); s.deaths++; localStorage.setItem('playerStats',JSON.stringify(s)); document.getElementById('storyText').innerHTML=`<span style="color:#ff6b6b;">💀 死亡 💀</span><br><br>${m}`; document.getElementById('choiceButtons').innerHTML=''; document.getElementById('resetBtn').style.display='block'; document.getElementById('backBtn').style.display='block'; gameActive=false; }
+        function handleWin() { let shards=parseInt(localStorage.getItem('sanityShards')||'100')+100; localStorage.setItem('sanityShards',shards); let s=JSON.parse(localStorage.getItem('playerStats')||'{"wins":0,"deaths":0,"completedDungeons":[]}'); s.wins++; if(!s.completedDungeons.includes('血月教堂')) s.completedDungeons.push('血月教堂'); localStorage.setItem('playerStats',JSON.stringify(s)); addEventLog('通关血月教堂，获得100理智碎片'); document.getElementById('storyText').innerHTML=`<span style="color:#7ec850;">⭐ 通关！ ⭐</span><br><br>你净化了血月教堂！获得100理智碎片！`; document.getElementById('choiceButtons').innerHTML=''; document.getElementById('resetBtn').style.display='block'; document.getElementById('backBtn').style.display='block'; gameActive=false; updateStats(); }
+
+        const scenes = {
+            start: { text: "血月悬在教堂尖顶上方，将一切都染成了暗红色。教堂的大门敞开，里面传来管风琴的乐声。彩绘玻璃上映着扭曲的影子...你感到一股无形的力量在召唤你进去。", choices: [{ text: "🚪 进入教堂", next: "enterChurch", effects: {} }, { text: "🔍 在教堂外观察", next: "outside", effects: {} }] },
+            outside: { text: "你绕着教堂走了一圈，发现后院有一片墓地。其中一座墓碑上刻着你的名字和今天的日期！", choices: [{ text: "😨 冲进教堂", next: "enterChurch", effects: { sanity: -30 } }, { text: "🧘 告诉自己这是幻觉", next: "calmChurch", effects: { sanity: -10 } }] },
+            calmChurch: { text: "你深呼吸，再次看向墓碑——上面什么都没有。但转身时，一个身穿黑袍的身影站在你身后。", choices: [{ text: "进入教堂", next: "enterChurch", effects: { hp: -10 } }] },
+            enterChurch: { text: "教堂内部比外面看起来大得多。长椅上空无一人，但管风琴在自动演奏。祭坛上方有一个巨大的血色十字架。一个声音在回荡：'离开这里，或者永远留下...'", choices: [{ text: "🙏 走向祭坛", next: "altar", effects: {} }, { text: "🎭 检查管风琴", next: "organ", effects: {} }, { text: "🔍 检查忏悔室", next: "confession", effects: {} }, { text: "🏃 逃离教堂", next: "runDeath", effects: {} }] },
+            runDeath: { text: "你转身逃跑，但教堂的门已经锁上了。四面墙壁开始向你挤压过来！", choices: [], isDeath: true, deathMsg: "教堂将你碾碎，你成为了墙壁的一部分。" },
+            altar: { text: "祭坛上放着一本古老的圣经，页面自动翻开到启示录章节。突然，圣经上开始渗出鲜血！一个六翼天使从祭坛上方降下，它没有脸，只有无数的眼睛。", choices: [{ text: "📿 用十字架镇压", next: "exorcise", effects: {}, requiresItem: "生锈的十字架" }, { text: "🙇 跪地祈祷", next: "pray", effects: { sanity: -25 } }, { text: "🏃 逃跑", next: "runFromAngel", effects: { hp: -30 } }] },
+            exorcise: { text: "你高举十字架，神圣的光芒暂时逼退了天使。但它说：'你通过了第一关，但还不够...'", choices: [{ text: "继续", next: "organ", effects: { sanity: +10 } }] },
+            pray: { text: "你跪在地上祈祷，天使靠近了你。它在你耳边低语：'你的灵魂很纯净...' 然后它消失了。", choices: [{ text: "继续", next: "organ", effects: { sanity: +5 } }] },
+            runFromAngel: { text: "你转身逃跑，天使挥动手臂，一道光击中了你的后背。", choices: [{ text: "踉跄前进", next: "organ", effects: { hp: -25 } }] },
+            organ: { text: "你走到管风琴前，琴键在自己跳动。突然，琴声变成了诡异的笑声。管风琴后面出现了一个堕天使，它有六只黑色的翅膀，手持火焰之剑。", choices: [{ text: "🎹 尝试演奏赞美诗", next: "playHymn", effects: {} }, { text: "⚔️ 与堕天使战斗", next: "fightFallen", effects: { hp: -50 } }, { text: "💊 投掷镇定剂", next: "calmFallen", effects: {}, requiresItem: "镇定剂" }] },
+            playHymn: { text: "你坐在琴前，手指触摸到琴键的一瞬间，一段神圣的旋律自动从你手中流出。堕天使捂住耳朵尖叫着消失了！", choices: [{ text: "✅ 通关", next: "win", effects: {} }] },
+            fightFallen: { text: "你与堕天使搏斗，但它的力量远超你的想象。火焰之剑刺穿了你的身体。", choices: [], isDeath: true, deathMsg: "堕天使将你焚烧成了灰烬。" },
+            calmFallen: { text: "镇定剂让堕天使暂时恍惚了，但它很快恢复，愤怒地攻击你。", choices: [], isDeath: true, deathMsg: "激怒的堕天使瞬间将你消灭。" },
+            confession: { text: "你走进忏悔室，坐下后，隔板另一侧传来一个声音：'说出你的罪孽...' 你开始忏悔，但声音越来越邪恶。", choices: [{ text: "🗣️ 继续忏悔", next: "continueConfess", effects: { sanity: -15 } }, { text: "🚪 离开", next: "enterChurch", effects: { sanity: -10 } }, { text: "🔪 打开隔板", next: "openBooth", effects: {} }] },
+            openBooth: { text: "你猛地打开隔板，发现对面坐着一个穿着主教袍的骷髅。它向你扑来！", choices: [{ text: "⚔️ 战斗", next: "fightBishop", effects: { hp: -30 } }] },
+            fightBishop: { text: "你与主教骷髅搏斗，最终将它击碎。它消失时留下了一把古老的钥匙。", choices: [{ text: "🔑 捡起钥匙", next: "secretDoor", effects: {} }] },
+            secretDoor: { text: "你用钥匙打开了祭坛后面的暗门，发现了一个隐藏的密室。里面放着教堂的圣物——光明之石。", choices: [{ text: "💎 拿起圣物", next: "win", effects: {} }] },
+            continueConfess: { text: "你继续忏悔，突然忏悔室开始下沉！你掉进了一个地下墓穴，周围全是骷髅。", choices: [{ text: "⚔️ 战斗", next: "fightSkeletons", effects: { hp: -30 } }, { text: "🏃 逃跑", next: "runCrypt", effects: { hp: -20, sanity: -20 } }] },
+            fightSkeletons: { text: "你击败了骷髅，找到了出口。", choices: [{ text: "爬上去", next: "enterChurch", effects: { hp: -10 } }] },
+            runCrypt: { text: "你在墓穴中迷路，耗尽了体力。", choices: [], isDeath: true, deathMsg: "你倒在墓穴中，成为了这里的新居民。" },
+            win: { text: "圣物的光芒驱散了教堂的诅咒！血月消失了，教堂恢复了圣洁。一个声音在你耳边说：'你净化了这片圣地...' 你成功通关了血月教堂！", choices: [], isWin: true }
+        };
+
+        function renderScene(id) {
+            if (!gameActive) return;
+            let s = scenes[id];
+            if (!s) return;
+            if (s.isWin) { handleWin(); return; }
+            if (s.isDeath) { handleDeath(s.deathMsg); return; }
+            if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
+            if (sanity <= 0) { handleDeath('你的理智彻底崩溃，永远留在了教堂...'); return; }
+            document.getElementById('storyText').innerHTML = s.text;
+            if (s.choices && s.choices.length) {
+                document.getElementById('choiceButtons').innerHTML = s.choices.map((c,i)=>`<button class="choice-btn ${c.next==='win'?'win-option':(c.effects?.hp&&c.effects.hp<=-30?'death-option':'')}" data-choice="${i}">${c.text}${c.requiresItem?` (需要:${c.requiresItem})`:''}</button>`).join('');
+                document.querySelectorAll('.choice-btn').forEach(btn=>btn.addEventListener('click',()=>{
+                    let c = s.choices[parseInt(btn.getAttribute('data-choice'))];
+                    if(c.requiresItem){ let b=JSON.parse(localStorage.getItem('backpack')||'[]'); if(!b.some(i=>i.name===c.requiresItem)){ alert(`需要 ${c.requiresItem}`); return; } }
+                    if(c.effects) applyEffects(c.effects);
+                    if(c.next) renderScene(c.next);
+                }));
+            } else document.getElementById('choiceButtons').innerHTML = '';
+        }
+        function resetGame() { hp=100; sanity=100; gameActive=true; updateStats(); renderScene('start'); document.getElementById('resetBtn').style.display='none'; document.getElementById('backBtn').style.display='none'; }
+        renderScene('start'); updateStats(); document.getElementById('resetBtn').addEventListener('click', resetGame);
+        setInterval(()=>{let n=new Date(); document.querySelectorAll('.status-time').forEach(el=>el.textContent=`🕸️ ${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}:${n.getSeconds().toString().padStart(2,'0')}`);},1000);
+    </script>
+</body>
+</html>
