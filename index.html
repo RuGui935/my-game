@@ -36,28 +36,24 @@
             <div class="dungeon-list">
                 <h3 class="section-title">📖 可选副本</h3>
                 
-                <!-- 邮轮副本 -->
-                <div class="dungeon-item" data-dungeon="幽灵邮轮" data-desc="一艘失踪三十年的豪华邮轮突然出现在海面上，甲板上空无一人，但宴会厅里传来悠扬的音乐..." data-diff="★☆☆☆☆">
+                <div class="dungeon-item" data-dungeon="幽灵邮轮" data-desc="一艘失踪三十年的豪华邮轮突然出现在海面上，甲板上空无一人，但宴会厅里传来悠扬的音乐..." data-diff="★☆☆☆☆" data-url="dungeons/cruise.html">
                     <h4>幽灵邮轮</h4>
-                    <p>难度：★☆☆☆☆ | 推荐等级：1</p>
+                    <p>难度：★☆☆☆☆ | 推荐等级：1 | 奖励：30理智碎片</p>
                 </div>
                 
-                <!-- 迷雾森林副本 -->
-                <div class="dungeon-item" data-dungeon="迷雾森林" data-desc="浓雾笼罩的古老森林，树木会移动，小径会改变方向。远处隐约可见一座小木屋..." data-diff="★★☆☆☆">
+                <div class="dungeon-item" data-dungeon="迷雾森林" data-desc="浓雾笼罩的古老森林，树木会移动，小径会改变方向。远处隐约可见一座小木屋..." data-diff="★★☆☆☆" data-url="dungeons/forest.html">
                     <h4>迷雾森林</h4>
-                    <p>难度：★★☆☆☆ | 推荐等级：2</p>
+                    <p>难度：★★☆☆☆ | 推荐等级：3 | 奖励：45理智碎片</p>
                 </div>
                 
-                <!-- 废弃矿井副本 -->
-                <div class="dungeon-item" data-dungeon="废弃矿井" data-desc="黑暗的矿道深处传来镐子敲击的声音，但矿井早已荒废多年。空气中弥漫着硫磺味..." data-diff="★★★☆☆">
+                <div class="dungeon-item" data-dungeon="废弃矿井" data-desc="黑暗的矿道深处传来镐子敲击的声音，但矿井早已荒废多年。空气中弥漫着硫磺味..." data-diff="★★★☆☆" data-url="dungeons/mine.html">
                     <h4>废弃矿井</h4>
-                    <p>难度：★★★☆☆ | 推荐等级：3</p>
+                    <p>难度：★★★☆☆ | 推荐等级：5 | 奖励：60理智碎片</p>
                 </div>
                 
-                <!-- 血月教堂副本 -->
-                <div class="dungeon-item" data-dungeon="血月教堂" data-desc="血色的月光洒在哥特式教堂上，彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲..." data-diff="★★★★☆">
+                <div class="dungeon-item" data-dungeon="血月教堂" data-desc="血色的月光洒在哥特式教堂上，彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲..." data-diff="★★★★☆" data-url="dungeons/church.html">
                     <h4>血月教堂</h4>
-                    <p>难度：★★★★☆ | 推荐等级：4</p>
+                    <p>难度：★★★★☆ | 推荐等级：8 | 奖励：100理智碎片</p>
                 </div>
             </div>
         </main>
@@ -94,78 +90,42 @@
         }
         updateShards();
 
-        // 所有副本都解锁
-        const dungeonsData = {
-            '幽灵邮轮': {
-                name: '幽灵邮轮',
-                desc: '一艘失踪三十年的豪华邮轮突然出现在海面上，甲板上空无一人，但宴会厅里传来悠扬的音乐...',
-                diff: '★☆☆☆☆'
-            },
-            '迷雾森林': {
-                name: '迷雾森林',
-                desc: '浓雾笼罩的古老森林，树木会移动，小径会改变方向。远处隐约可见一座小木屋...',
-                diff: '★★☆☆☆'
-            },
-            '废弃矿井': {
-                name: '废弃矿井',
-                desc: '黑暗的矿道深处传来镐子敲击的声音，但矿井早已荒废多年。空气中弥漫着硫磺味...',
-                diff: '★★★☆☆'
-            },
-            '血月教堂': {
-                name: '血月教堂',
-                desc: '血色的月光洒在哥特式教堂上，彩色玻璃上映着扭曲的影子，管风琴自动演奏着安魂曲...',
-                diff: '★★★★☆'
-            }
-        };
-        
         const modal = document.getElementById('confirmModal');
-        let selectedDungeon = null;
+        let selectedUrl = null;
+        let selectedName = null;
+        let selectedDesc = null;
         
         document.querySelectorAll('.dungeon-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
-                
-                const dungeonName = item.getAttribute('data-dungeon');
-                const dungeonData = dungeonsData[dungeonName];
-                
-                if (dungeonData) {
-                    selectedDungeon = dungeonData;
-                    document.getElementById('modalDungeonDesc').innerHTML = 
-                        `📖 ${selectedDungeon.name}<br><br>${selectedDungeon.desc}<br><br>难度：${selectedDungeon.diff}`;
-                    modal.style.display = 'flex';
-                } else {
-                    alert('数据错误，请刷新页面重试');
-                }
+                selectedUrl = item.getAttribute('data-url');
+                selectedName = item.getAttribute('data-dungeon');
+                selectedDesc = item.getAttribute('data-desc');
+                document.getElementById('modalDungeonDesc').innerHTML = 
+                    `📖 ${selectedName}<br><br>${selectedDesc}<br><br>确定要进入这个副本吗？`;
+                modal.style.display = 'flex';
             });
         });
         
         document.getElementById('modalConfirmBtn').onclick = () => {
-            if (selectedDungeon) {
-                localStorage.setItem('currentDungeon', JSON.stringify(selectedDungeon));
-                window.location.href = 'pages/dungeon.html';
+            if (selectedUrl) {
+                localStorage.setItem('currentDungeonName', selectedName);
+                window.location.href = selectedUrl;
             }
             modal.style.display = 'none';
         };
         
         document.getElementById('modalCancelBtn').onclick = () => {
             modal.style.display = 'none';
-            selectedDungeon = null;
+            selectedUrl = null;
         };
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-                selectedDungeon = null;
-            }
-        });
         
         function updateTime() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            const timeElements = document.querySelectorAll('.status-time');
-            timeElements.forEach(el => {
+            document.querySelectorAll('.status-time').forEach(el => {
                 if (el) el.textContent = `🕸️ ${hours}:${minutes}:${seconds}`;
             });
         }
