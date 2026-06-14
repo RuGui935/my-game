@@ -9,20 +9,22 @@
     <style>
         .story-text { background: rgba(0,0,0,0.7); padding: 18px; border-radius: 12px; margin-bottom: 20px; line-height: 1.7; font-size: 0.95rem; border-left: 4px solid #c0392b; }
         .choice-buttons { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
-        .choice-btn { background: #1a1210; border: 1px solid #6a3a2a; padding: 14px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+        .choice-btn { background: #1a1210; border: 1px solid #8a2a2a; padding: 14px 16px; border-radius: 12px; color: #dbbc8c; text-align: left; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
         .choice-btn:active { transform: scale(0.98); background: #2a1a1a; }
         .choice-btn.death-option { border-color: #c0392b; color: #e74c3c; background: #2a0a0a; }
         .choice-btn.win-option { border-color: #27ae60; color: #2ecc71; }
-        .choice-btn.danger-option { border-color: #e67e22; color: #f39c12; }
         .status-bars { display: flex; gap: 16px; margin-bottom: 16px; justify-content: space-between; }
-        .status-item { flex: 1; background: #1a1210; padding: 10px; border-radius: 8px; text-align: center; }
+        .status-item { flex: 1; background: #1a1210; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #4a2a2a; }
         .status-label { font-size: 0.7rem; color: #7a5a4a; }
         .status-value { font-size: 1.3rem; font-weight: bold; color: #e8a87c; }
-        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #4a2a2a; }
+        .use-item-area { background: #0c0808; border-radius: 12px; padding: 12px; margin-top: 16px; border: 1px solid #8a2a2a; }
+        .use-item-title { font-size: 0.8rem; color: #c0392b; margin-bottom: 8px; }
         .item-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-        .item-btn { background: #2a1a1a; border: 1px solid #6a3a2a; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; color: #dbbc8c; cursor: pointer; }
-        .reset-btn, .back-btn { background: #2a1a1a; border: 1px solid #6a3a2a; color: #dbbc8c; padding: 10px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
-        .reset-btn:hover, .back-btn:hover { background: #3a2a2a; }
+        .item-btn { background: #2a1a1a; border: 1px solid #8a2a2a; padding: 8px 14px; border-radius: 20px; font-size: 0.75rem; color: #dbbc8c; cursor: pointer; }
+        .reset-btn, .back-btn { background: #2a1a1a; border: 1px solid #8a2a2a; color: #dbbc8c; padding: 10px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer; width: 100%; }
+        .resource-bar { display: flex; justify-content: space-between; align-items: center; background: #1a1210; padding: 10px 16px; border-radius: 30px; margin-bottom: 20px; border: 1px solid #8a2a2a; }
+        .dungeon-header { margin-bottom: 20px; border-left: 4px solid #c0392b; padding-left: 12px; }
+        .glitch-text { font-family: 'Creepster', cursive; font-size: 1.2rem; color: #c0392b; text-shadow: 1px 1px 0 #3a1a1a; }
     </style>
 </head>
 <body>
@@ -84,11 +86,9 @@
         // ========== 游戏状态 ==========
         let hp = 100;
         let sanity = 100;
-        let blessing = 0;  // 圣光祝福层数
+        let blessing = 0;
         let gameActive = true;
-        let currentNode = 'start';
         
-        // ========== 辅助函数 ==========
         function addEventLog(msg) {
             let log = JSON.parse(localStorage.getItem('eventLog') || '[]');
             const now = new Date();
@@ -102,8 +102,7 @@
             document.getElementById('hpValue').textContent = Math.max(0, hp);
             document.getElementById('sanityValue').textContent = Math.max(0, sanity);
             document.getElementById('blessValue').textContent = blessing;
-            let shards = localStorage.getItem('sanityShards');
-            if (shards === null) shards = 100;
+            let shards = localStorage.getItem('sanityShards') || 100;
             document.getElementById('shardsValue').textContent = shards;
         }
         
@@ -111,25 +110,13 @@
             if (!gameActive) return;
             if (effects.hp) {
                 hp += effects.hp;
-                if (hp <= 0) {
-                    hp = 0;
-                    gameActive = false;
-                    handleDeath('你的生命值归零，倒在了教堂的血色地板上...');
-                    return;
-                }
+                if (hp <= 0) { gameActive = false; handleDeath('你的生命值归零，倒在了教堂的血色地板上...'); return; }
                 if (effects.hp < 0) addEventLog(`生命-${Math.abs(effects.hp)}`);
-                if (effects.hp > 0) addEventLog(`生命+${effects.hp}`);
             }
             if (effects.sanity) {
                 sanity += effects.sanity;
-                if (sanity <= 0) {
-                    sanity = 0;
-                    gameActive = false;
-                    handleDeath('你的理智彻底崩溃，永远困在了教堂的诅咒中...');
-                    return;
-                }
+                if (sanity <= 0) { gameActive = false; handleDeath('你的理智彻底崩溃，永远困在了教堂的诅咒中...'); return; }
                 if (effects.sanity < 0) addEventLog(`理智-${Math.abs(effects.sanity)}`);
-                if (effects.sanity > 0) addEventLog(`理智+${effects.sanity}`);
             }
             if (effects.blessing) {
                 blessing += effects.blessing;
@@ -165,21 +152,17 @@
                 hp = Math.min(100, hp + 20);
                 sanity = Math.min(100, sanity + 15);
                 addEventLog('使用镇定剂，生命+20，理智+15');
-                alert('镇定剂让你冷静下来，恐惧消退了一些');
+                alert('镇定剂让你冷静下来');
             } else if (itemName === '手摇手电筒') {
                 sanity = Math.min(100, sanity + 10);
-                addEventLog('手电筒照亮了教堂的阴影，理智+10');
-                alert('手电筒的光芒驱散了一些黑暗');
+                addEventLog('手电筒照亮阴影，理智+10');
+                alert('手电筒驱散了一些黑暗');
             } else if (itemName === '生锈的十字架') {
-                if (blessing < 3) blessing++;
-                addEventLog('十字架发出微弱光芒，圣光祝福+1');
-                alert('十字架微微发光，你感到一丝神圣的庇护');
-            } else if (itemName === '护身符') {
-                hp = Math.min(100, hp + 15);
-                addEventLog('护身符保护了你，生命+15');
-                alert('护身符温热起来，挡住了某种邪恶力量');
+                blessing = Math.min(3, blessing + 1);
+                addEventLog('十字架发光，圣光祝福+1');
+                alert('十字架发出微弱的光芒');
             } else {
-                alert('这个道具在教堂中似乎没有效果');
+                alert('这个道具在这里没有效果');
                 return;
             }
             
@@ -196,7 +179,7 @@
             let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
             stats.deaths++;
             localStorage.setItem('playerStats', JSON.stringify(stats));
-            document.getElementById('storyText').innerHTML = `<span style="color:#e74c3c; font-size:1.2rem;">💀 死亡 💀</span><br><br>${msg}<br><br><span style="color:#7a5a4a;">点击下方按钮重新挑战</span>`;
+            document.getElementById('storyText').innerHTML = `<span style="color:#e74c3c; font-size:1.2rem;">💀 死亡 💀</span><br><br>${msg}`;
             document.getElementById('choiceButtons').innerHTML = '';
             document.getElementById('useItemArea').style.display = 'none';
             document.getElementById('resetBtn').style.display = 'block';
@@ -208,15 +191,14 @@
             if (!gameActive) return;
             gameActive = false;
             let reward = 100 + blessing * 10;
-            let shards = parseInt(localStorage.getItem('sanityShards') || '100');
-            shards += reward;
+            let shards = parseInt(localStorage.getItem('sanityShards') || '100') + reward;
             localStorage.setItem('sanityShards', shards);
             let stats = JSON.parse(localStorage.getItem('playerStats') || '{"wins":0,"deaths":0,"completedDungeons":[]}');
             stats.wins++;
             if (!stats.completedDungeons.includes('血月教堂')) stats.completedDungeons.push('血月教堂');
             localStorage.setItem('playerStats', JSON.stringify(stats));
             addEventLog(`通关血月教堂，获得${reward}理智碎片`);
-            document.getElementById('storyText').innerHTML = `<span style="color:#2ecc71; font-size:1.2rem;">⭐ 通关！ ⭐</span><br><br>你净化了血月教堂，圣光笼罩着你的身体！<br>获得了 ${reward} 理智碎片！${blessing > 0 ? ' 圣光祝福为你带来了额外奖励！' : ''}`;
+            document.getElementById('storyText').innerHTML = `<span style="color:#2ecc71; font-size:1.2rem;">⭐ 通关！ ⭐</span><br><br>你净化了血月教堂！获得了 ${reward} 理智碎片！`;
             document.getElementById('choiceButtons').innerHTML = '';
             document.getElementById('useItemArea').style.display = 'none';
             document.getElementById('resetBtn').style.display = 'block';
@@ -227,46 +209,38 @@
         // ========== 剧情场景 ==========
         const scenes = {
             start: {
-                text: "🌕 血月高悬在教堂尖顶上方，将一切都染成了暗红色。教堂的大门敞开，里面传来管风琴诡异的乐声。彩绘玻璃上映着扭曲的影子，像是在痛苦地挣扎。你感到一股无形的力量在召唤你进去，同时又有一种强烈的警告：进去就再也出不来了...\n\n地上有一个血手印，指向教堂内部。",
+                text: "🌕 血月高悬在教堂尖顶上方，将一切都染成了暗红色。教堂的大门敞开，里面传来管风琴诡异的乐声。彩绘玻璃上映着扭曲的影子，像是在痛苦地挣扎。你感到一股无形的力量在召唤你进去，同时又有一种强烈的警告：进去就再也出不来了...",
                 choices: [
                     { text: "🚪 推开大门进入教堂", next: "enterChurch", effects: { sanity: -5 } },
-                    { text: "🔍 先在教堂外调查", next: "outsideInvestigate", effects: {} },
-                    { text: "🏃 转身离开", next: "leaveDeath", effects: {} }
+                    { text: "🔍 先在教堂外调查", next: "outside", effects: {} },
+                    { text: "🏃 转身离开", next: "leave", effects: {} }
                 ]
             },
-            leaveDeath: {
+            leave: {
                 text: "你转身要走，但教堂的大门突然自己打开了。一股无形的力量将你吸了进去！",
                 choices: [],
                 isDeath: true,
-                deathMsg: "你试图逃跑，但教堂的诅咒不允许任何人离开。你被拖入了黑暗深处..."
+                deathMsg: "你试图逃跑，但教堂的诅咒不允许任何人离开。"
             },
-            outsideInvestigate: {
-                text: "你绕着教堂走了一圈，发现后院有一片墓地。墓碑上的名字都在血月下闪烁着诡异的光芒。你看到一座墓碑上刻着你的名字和今天的日期！心跳骤然加速。\n\n突然，你听到身后有脚步声，回头时看到一个穿着破烂黑袍的身影站在那里，没有脸，只有一个兜帽。",
+            outside: {
+                text: "你绕着教堂走了一圈，发现后院有一片墓地。墓碑上的名字都在血月下闪烁着诡异的光芒。你看到一座墓碑上刻着你的名字和今天的日期！心跳骤然加速。",
                 choices: [
-                    { text: "😨 冲进教堂", next: "enterChurch", effects: { sanity: -15, hp: -5 } },
-                    { text: "🧘 深呼吸告诉自己这是幻觉", next: "calmDown", effects: { sanity: -10 } },
-                    { text: "🗡️ 攻击黑袍身影", next: "attackShadow", effects: { sanity: -20, hp: -10 } }
+                    { text: "😨 冲进教堂", next: "enterChurch", effects: { sanity: -15 } },
+                    { text: "🧘 深呼吸冷静", next: "calmDown", effects: { sanity: -10 } }
                 ]
             },
             calmDown: {
-                text: "你闭上眼睛深呼吸，再次睁开时，黑袍身影消失了。但墓碑上的名字还在，而且日期变成了今天！你感到一阵寒意，决定进入教堂。",
+                text: "你闭上眼睛深呼吸，再次睁开时，墓碑上的字消失了。但你感到一阵寒意，决定进入教堂。",
                 choices: [
                     { text: "进入教堂", next: "enterChurch", effects: { sanity: -5 } }
                 ]
             },
-            attackShadow: {
-                text: "你冲向黑袍身影，但它化作黑雾消散了。你只击中了空气，但手臂上出现了一个黑色的手印。",
-                choices: [
-                    { text: "进入教堂", next: "enterChurch", effects: { hp: -10, sanity: -15 } }
-                ]
-            },
             enterChurch: {
-                text: "你踏入教堂，木门在你身后轰然关闭。教堂内部比外面看起来大得多。长椅上空无一人，但管风琴在自动演奏一曲哀歌。祭坛上方有一个巨大的血色十字架，正在往下滴血。空气中弥漫着焚香和腐臭混合的气味。\n\n一个低沉的声音在教堂中回荡：'离开这里...或者永远留下...你的灵魂将成为祭品...'",
+                text: "你踏入教堂，木门在你身后轰然关闭。教堂内部比外面看起来大得多。长椅上空无一人，但管风琴在自动演奏一曲哀歌。祭坛上方有一个巨大的血色十字架，正在往下滴血。空气中弥漫着焚香和腐臭混合的气味。\n\n一个低沉的声音在教堂中回荡：'离开这里...或者永远留下...'",
                 choices: [
-                    { text: "🙏 走向祭坛", next: "altar", effects: { sanity: -5 } },
+                    { text: "🙏 走向祭坛", next: "altar", effects: {} },
                     { text: "🎭 检查管风琴", next: "organ", effects: {} },
                     { text: "🔍 检查忏悔室", next: "confession", effects: {} },
-                    { text: "📖 检查地上的圣经", next: "bible", effects: {} },
                     { text: "🏃 尝试打开大门", next: "doorDeath", effects: {} }
                 ]
             },
@@ -274,232 +248,152 @@
                 text: "你拼命拉拽大门，但它纹丝不动。突然，大门上浮现出一张扭曲的面孔，张开大嘴向你咬来！",
                 choices: [],
                 isDeath: true,
-                deathMsg: "大门的诅咒将你吞噬，你成为了教堂的一部分。"
-            },
-            bible: {
-                text: "你捡起地上的圣经，页面自动翻开到《启示录》第13章。文字开始流血，从书页上滴落。一个声音在你耳边低语：'凡有耳的，就应当听...'\n\n突然，圣经燃烧起来，火焰跳到了你的手上！",
-                choices: [
-                    { text: "🔥 拍灭火焰", next: "enterChurch", effects: { hp: -15, sanity: -10 } },
-                    { text: "📿 用十字架祈祷", next: "prayer", effects: {}, requiresItem: "生锈的十字架" }
-                ]
-            },
-            prayer: {
-                text: "你举起十字架，火焰瞬间熄灭了。圣光保护了你。你感到一丝希望。",
-                choices: [
-                    { text: "继续探索", next: "enterChurch", effects: { blessing: 1, sanity: +10 } }
-                ]
+                deathMsg: "大门的诅咒将你吞噬。"
             },
             altar: {
-                text: "你走向祭坛，每一步都让血色十字架的光芒更加耀眼。祭坛上放着一本古老的圣经，页面自己翻动。突然，圣经上开始渗出鲜血，血腥味让人作呕！祭坛下方的地面裂开，一个六翼天使从裂缝中升起——但它没有脸，身上全是眼睛。所有眼睛同时盯着你！",
+                text: "你走向祭坛，每一步都让血色十字架的光芒更加耀眼。祭坛上放着一本古老的圣经，页面自己翻动。突然，圣经上开始渗出鲜血！祭坛下方的地面裂开，一个六翼天使从裂缝中升起——但它没有脸，身上全是眼睛。所有眼睛同时盯着你！",
                 choices: [
-                    { text: "📿 用十字架对抗天使", next: "fightAngel", effects: {}, requiresItem: "生锈的十字架" },
-                    { text: "🙇 跪地祈祷", next: "prayToAngel", effects: { sanity: -20 } },
-                    { text: "🏃 逃跑", next: "runFromAngel", effects: { hp: -25, sanity: -15 } },
-                    { text: "🗣️ 大声质问天使", next: "questionAngel", effects: { sanity: -15 } }
+                    { text: "📿 用十字架对抗", next: "fightAngel", effects: {}, requiresItem: "生锈的十字架" },
+                    { text: "🙇 跪地祈祷", next: "prayDeath", effects: { sanity: -20 } },
+                    { text: "🏃 逃跑", next: "runFromAngel", effects: { hp: -20, sanity: -15 } }
                 ]
-            },
-            questionAngel: {
-                text: "你大声质问：'为什么要诅咒这座教堂？！'天使没有回答，只是所有的眼睛都流出了血泪。血泪滴在地上，化作无数只血手向你抓来！",
-                choices: [
-                    { text: "⚔️ 挣扎", next: "angelDeath", effects: { hp: -30 } }
-                ]
-            },
-            angelDeath: {
-                text: "血手抓住了你的脚踝，将你拖入地下。你最后的意识是天使冰冷的凝视。",
-                choices: [],
-                isDeath: true,
-                deathMsg: "天使将你拖入了地狱深渊。"
             },
             runFromAngel: {
-                text: "你转身逃跑，天使挥动手臂，一道血色的光击中了你的后背。你踉跄着跑向管风琴方向。",
+                text: "你转身逃跑，天使挥动手臂，一道血光击中了你的后背。你踉跄着跑向管风琴。",
                 choices: [
-                    { text: "继续跑", next: "organ", effects: { hp: -20, sanity: -10 } }
+                    { text: "继续", next: "organ", effects: { hp: -15 } }
                 ]
             },
-            prayToAngel: {
-                text: "你跪在地上，颤抖着祈祷。天使缓缓靠近你，它身上的一只眼睛盯着你看。突然，它开口了：'你的信仰...不够纯粹...'\n\n一道强光击中了你。",
-                choices: [
-                    { text: "...", next: "enterChurch", effects: { hp: -20, sanity: -25, blessing: -1 } }
-                ]
+            prayDeath: {
+                text: "你跪地祈祷，天使靠近你，低语道：'你的信仰...不够纯粹...' 一道强光击中了你。",
+                choices: [],
+                isDeath: true,
+                deathMsg: "天使审判了你，你的灵魂被带走了。"
             },
             fightAngel: {
-                text: "你高举十字架，圣光照亮了整个祭坛。天使尖叫着后退，身上的眼睛开始燃烧。'你...有圣物...'它痛苦地说，'但这还不够...'\n\n天使消失了，但祭坛的地面完全裂开，露出了一个向下的楼梯。",
+                text: "你高举十字架，圣光照亮了整个祭坛。天使尖叫着后退，身上的眼睛开始燃烧。'你...有圣物...'它痛苦地说，然后消散了。祭坛地面裂开，露出一个向下的楼梯。",
                 choices: [
                     { text: "⬇️ 走下楼梯", next: "crypt", effects: { blessing: 1, sanity: +10 } }
                 ]
             },
             organ: {
-                text: "你走到管风琴前，琴键在自己跳动，演奏着一首你从未听过的曲子。琴声越来越诡异，变成了凄厉的尖叫。管风琴后面走出一个堕天使——它有六只漆黑的翅膀，手持燃烧着黑色火焰的巨剑，眼睛里闪烁着红光。",
+                text: "你走到管风琴前，琴键在自己跳动。琴声越来越诡异，变成了凄厉的尖叫。管风琴后面走出一个堕天使——它有六只漆黑的翅膀，手持燃烧着黑色火焰的巨剑！",
                 choices: [
-                    { text: "🎹 尝试弹奏赞美诗", next: "playHymn", effects: {} },
-                    { text: "⚔️ 与堕天使战斗", next: "fightFallen", effects: { hp: -35 } },
-                    { text: "🏃 逃跑", next: "runFromFallen", effects: { hp: -15, sanity: -15 } }
-                ]
-            },
-            runFromFallen: {
-                text: "你转身逃跑，堕天使的黑色火焰击中了你的后背。你扑倒在地，但爬起来继续跑向忏悔室。",
-                choices: [
-                    { text: "躲进忏悔室", next: "confession", effects: { hp: -15, sanity: -10 } }
+                    { text: "🎹 弹奏赞美诗", next: "playHymn", effects: {} },
+                    { text: "⚔️ 战斗", next: "fightFallen", effects: { hp: -30 } }
                 ]
             },
             fightFallen: {
-                text: "你与堕天使搏斗，但它太强大了。黑色火焰灼烧着你的皮肤，你感觉生命在快速流逝。",
-                choices: [
-                    { text: "💊 使用镇定剂", next: "fightFallenHelp", effects: {}, requiresItem: "镇定剂" },
-                    { text: "继续战斗", next: "fallenDeath", effects: { hp: -30 } }
-                ]
-            },
-            fightFallenHelp: {
-                text: "镇定剂让你暂时忽略了疼痛，你爆发出了惊人的力量，击退了堕天使！它尖叫着消失在黑烟中。",
-                choices: [
-                    { text: "继续探索", next: "enterChurch", effects: { hp: -10, blessing: 1 } }
-                ]
-            },
-            fallenDeath: {
-                text: "堕天使一剑刺穿了你的胸膛。黑色火焰从伤口蔓延到全身。",
+                text: "你与堕天使搏斗，但它太强大了。黑色火焰灼烧着你的皮肤。",
                 choices: [],
                 isDeath: true,
                 deathMsg: "堕天使将你焚烧成了灰烬。"
             },
             playHymn: {
-                text: "你坐在琴前，手指颤抖着触摸琴键。当你按下第一个音符时，一段陌生的神圣旋律自动从你手中流淌出来。琴声越来越响亮，整个教堂开始震动。堕天使捂住耳朵尖叫着：'不！！！这不可能！！！'\n\n它化作白光消散了。管风琴恢复了正常，弹奏着圣洁的赞美诗。",
+                text: "你坐在琴前，手指颤抖着触摸琴键。当你按下第一个音符时，一段神圣的旋律自动流淌出来。琴声越来越响亮，堕天使捂住耳朵尖叫着消失了！",
                 choices: [
-                    { text: "✅ 获得祝福", next: "afterOrgan", effects: { blessing: 2, sanity: +20 } }
+                    { text: "✅ 继续", next: "afterOrgan", effects: { blessing: 2, sanity: +20 } }
                 ]
             },
             afterOrgan: {
-                text: "堕天使消失后，管风琴后面的墙壁裂开了，露出一条通往地下的楼梯。你可以听到下面有水声，也许是地下水道？",
+                text: "堕天使消失后，管风琴后面的墙壁裂开了，露出一条向下的楼梯。",
                 choices: [
                     { text: "⬇️ 走下楼梯", next: "crypt", effects: {} },
-                    { text: "↩️ 返回教堂大厅", next: "enterChurch", effects: {} }
+                    { text: "返回大厅", next: "enterChurch", effects: {} }
                 ]
             },
             confession: {
-                text: "你走进忏悔室，木门在你身后自动关上。隔板另一侧传来一个沙哑的声音：'说出你的罪孽，我的孩子...' 你开始忏悔，但声音越来越邪恶，带着嘲讽和恶意。你感觉有什么东西在隔板另一边蠕动。",
+                text: "你走进忏悔室，木门在你身后自动关上。隔板另一侧传来一个沙哑的声音：'说出你的罪孽...' 你开始忏悔，但声音越来越邪恶。",
                 choices: [
-                    { text: "🗣️ 继续忏悔", next: "continueConfess", effects: { sanity: -15 } },
-                    { text: "🚪 试图离开", next: "leaveConfession", effects: { sanity: -10 } },
-                    { text: "🔪 猛地打开隔板", next: "openBooth", effects: {} }
+                    { text: "🗣️ 继续忏悔", next: "confessDeath", effects: { sanity: -15 } },
+                    { text: "🔪 打开隔板", next: "openBooth", effects: {} }
                 ]
             },
-            leaveConfession: {
-                text: "你用力推门，门终于打开了。但你回头时，看到隔板上有一张苍白的脸在看着你。",
-                choices: [
-                    { text: "返回大厅", next: "enterChurch", effects: { sanity: -15 } }
-                ]
+            confessDeath: {
+                text: "你继续忏悔，突然忏悔室的地板裂开了！你掉进了一个地下墓穴，周围全是骷髅。",
+                choices: [],
+                isDeath: true,
+                deathMsg: "你掉进了墓穴，成为了这里的新居民。"
             },
             openBooth: {
-                text: "你猛地打开隔板，发现对面坐着一个穿着主教袍的骷髅！它空洞的眼眶里燃烧着绿色的火焰，向你扑来！",
+                text: "你猛地打开隔板，发现对面坐着一个穿着主教袍的骷髅！它向你扑来！",
                 choices: [
-                    { text: "⚔️ 战斗", next: "fightBishop", effects: { hp: -25 } },
-                    { text: "📿 用十字架驱魔", next: "exorciseBishop", effects: {}, requiresItem: "生锈的十字架" }
+                    { text: "⚔️ 战斗", next: "fightBishop", effects: { hp: -20 } },
+                    { text: "📿 用十字架", next: "exorciseBishop", effects: {}, requiresItem: "生锈的十字架" }
                 ]
             },
             fightBishop: {
-                text: "你与主教骷髅搏斗，终于将它击碎。它消失时留下了一把古老的铜钥匙。",
+                text: "你与主教骷髅搏斗，终于将它击碎。它留下了一把古老的铜钥匙。",
                 choices: [
-                    { text: "🔑 捡起钥匙", next: "secretDoor", effects: { sanity: +5 } }
+                    { text: "🔑 捡起钥匙", next: "secretDoor", effects: {} }
                 ]
             },
             exorciseBishop: {
-                text: "你高举十字架，骷髅主教尖叫着化为灰烬。十字架上的圣光保护了你。",
+                text: "你高举十字架，骷髅主教尖叫着化为灰烬。",
                 choices: [
-                    { text: "🔑 捡起钥匙", next: "secretDoor", effects: { blessing: 1, sanity: +10 } }
+                    { text: "🔑 捡起钥匙", next: "secretDoor", effects: { blessing: 1 } }
                 ]
             },
             secretDoor: {
-                text: "你用钥匙打开了祭坛后面的暗门，发现了一个隐藏的密室。密室的墙壁上刻满了古老的符文，正中央放着一个发光的圣物盒。",
+                text: "你用钥匙打开了祭坛后面的暗门，发现了一个隐藏的密室。正中央放着一个发光的圣物盒。",
                 choices: [
                     { text: "💎 打开圣物盒", next: "win", effects: { blessing: 2 } }
                 ]
             },
-            continueConfess: {
-                text: "你继续忏悔，突然忏悔室的地板裂开了！你掉进了一个地下墓穴，周围堆满了白骨和腐烂的棺木。十几个骷髅从地上爬了起来，拿着锈蚀的武器向你逼近！",
-                choices: [
-                    { text: "⚔️ 战斗", next: "fightSkeletons", effects: { hp: -25 } },
-                    { text: "🏃 逃跑", next: "runCrypt", effects: { hp: -15, sanity: -15 } }
-                ]
-            },
-            fightSkeletons: {
-                text: "你拼尽全力击败了骷髅群，但身上多了几道伤口。远处有微弱的亮光。",
-                choices: [
-                    { text: "走向亮光", next: "cryptExit", effects: { hp: -10 } }
-                ]
-            },
-            runCrypt: {
-                text: "你在墓穴中迷了路，耗尽了体力。骷髅的脚步声越来越近。",
-                choices: [],
-                isDeath: true,
-                deathMsg: "你倒在墓穴中，成为了这里的新居民。"
-            },
-            cryptExit: {
-                text: "亮光是一个通往教堂后院的出口。你爬了出来，发现自己站在教堂后面。",
-                choices: [
-                    { text: "从正门重新进入", next: "enterChurch", effects: { hp: -5 } }
-                ]
-            },
             crypt: {
-                text: "楼梯通往教堂的地下墓穴。空气潮湿阴冷，墙壁上滴着水珠。这里埋葬着数百年来与教堂有关的人。你看到墙壁上有一个血色的符文在发光。",
+                text: "楼梯通往教堂的地下墓穴。空气潮湿阴冷，墙壁上滴着水珠。你看到墙壁上有一个血色的符文在发光。",
                 choices: [
                     { text: "🔍 检查符文", next: "rune", effects: {} },
-                    { text: "⬆️ 返回上面", next: "enterChurch", effects: {} },
                     { text: "➡️ 继续深入", next: "deepCrypt", effects: { sanity: -10 } }
                 ]
             },
             rune: {
-                text: "你触摸符文，一道记忆涌入你的脑海：这里曾经是一位圣女的安息之地，但她被邪恶力量腐蚀了。符文是封印，保护着教堂不被完全吞噬。",
+                text: "你触摸符文，一道记忆涌入你的脑海：这里曾经是一位圣女的安息之地。符文是封印，保护着教堂。",
                 choices: [
-                    { text: "🙏 祈祷加固封印", next: "strengthenSeal", effects: { blessing: 1, sanity: +10 } },
-                    { text: "⚡ 破坏符文", next: "breakRune", effects: { sanity: -20 } }
+                    { text: "🙏 祈祷加固封印", next: "strengthenSeal", effects: { blessing: 1 } },
+                    { text: "继续深入", next: "deepCrypt", effects: {} }
                 ]
             },
             strengthenSeal: {
-                text: "你跪下祈祷，符文变得更加明亮。一股正能量涌入你的身体。你感觉整个教堂都震动了一下。",
+                text: "你跪下祈祷，符文变得更加明亮。正能量涌入你的身体。",
                 choices: [
-                    { text: "继续深入", next: "deepCrypt", effects: { blessing: 1, hp: +10 } }
-                ]
-            },
-            breakRune: {
-                text: "你用力击打符文，但它突然爆炸了！冲击波把你震飞。黑暗从裂缝中涌出。",
-                choices: [
-                    { text: "逃跑", next: "enterChurch", effects: { hp: -20, sanity: -25 } }
+                    { text: "继续深入", next: "deepCrypt", effects: { hp: +10 } }
                 ]
             },
             deepCrypt: {
-                text: "墓穴的尽头是一个巨大的石棺。石棺上刻着：'沉睡于此的是被诅咒的圣女，切勿打扰'。但石棺的盖子已经被打开了一部分，里面传出低沉的呼吸声。",
+                text: "墓穴的尽头是一个巨大的石棺。石棺上刻着：'沉睡于此的是被诅咒的圣女'。但石棺的盖子已经被打开了一部分。",
                 choices: [
-                    { text: "⚰️ 打开石棺", next: "coffin", effects: { sanity: -20 } },
-                    { text: "🔒 尝试关上石棺", next: "closeCoffin", effects: { hp: -10 } },
-                    { text: "🏃 转身逃跑", next: "cryptExit", effects: {} }
+                    { text: "⚰️ 打开石棺", next: "coffin", effects: { sanity: -15 } },
+                    { text: "🏃 逃跑", next: "cryptExit", effects: {} }
                 ]
             },
-            closeCoffin: {
-                text: "你用尽全力推石棺盖，但它纹丝不动。一只苍白的手从缝隙中伸出来，抓住了你的手腕！",
+            coffin: {
+                text: "你推开石棺盖，里面躺着一位穿着白色长袍的女子。突然，她睁开了眼睛——纯黑色的眼睛！她向你伸出手！",
                 choices: [
-                    { text: "⚔️ 挣扎", next: "coffinFight", effects: { hp: -15 } }
+                    { text: "📿 用十字架", next: "exorciseSaint", effects: {}, requiresItem: "生锈的十字架" },
+                    { text: "⚔️ 战斗", next: "coffinFight", effects: { hp: -20 } }
                 ]
             },
             coffinFight: {
-                text: "你拼命挣扎，终于挣脱了。石棺里坐起一个穿着白色长袍的女子，她的眼睛是纯黑色的。",
+                text: "你与黑眼圣女搏斗，身受重伤但最终击退了她。",
                 choices: [
-                    { text: "📿 用十字架驱魔", next: "exorciseSaint", effects: {}, requiresItem: "生锈的十字架" },
-                    { text: "🏃 逃跑", next: "cryptExit", effects: { hp: -20, sanity: -20 } }
+                    { text: "离开", next: "win", effects: { hp: -10 } }
                 ]
             },
             exorciseSaint: {
-                text: "你高举十字架，圣光照耀着整个墓穴。黑眼圣女尖叫着化为光芒消散。封印完全稳定了，教堂的诅咒被解除了！",
+                text: "你高举十字架，圣光照耀着整个墓穴。黑眼圣女尖叫着化为光芒消散。封印完全稳定了！",
                 choices: [
                     { text: "✨ 获得胜利", next: "win", effects: { blessing: 3 } }
                 ]
             },
-            coffin: {
-                text: "你推开石棺盖，里面躺着一位穿着白色长袍的女子。突然，她睁开了眼睛——纯黑色的眼睛，没有眼白。她向你伸出手！",
+            cryptExit: {
+                text: "你找到了一个出口，爬出了墓穴，发现自己站在教堂后院。",
                 choices: [
-                    { text: "⚔️ 后退战斗", next: "coffinFight", effects: { hp: -10 } }
+                    { text: "重新进入教堂", next: "enterChurch", effects: {} }
                 ]
             },
             win: {
-                text: "圣物的光芒驱散了教堂的诅咒！血月消失了，变成了正常的月亮。教堂恢复了圣洁，彩色玻璃上映出美丽的光影。一个天使的声音在你耳边说：'感谢你净化了这片圣地...你的勇气和信仰拯救了无数灵魂...'\n\n你成功通关了血月教堂！",
+                text: "圣物的光芒驱散了教堂的诅咒！血月消失了，变成了正常的月亮。教堂恢复了圣洁。你成功通关了血月教堂！",
                 choices: [],
                 isWin: true
             }
@@ -507,73 +401,86 @@
         
         // ========== 渲染函数 ==========
         function renderScene(id) {
+            console.log("渲染场景:", id);
             if (!gameActive) return;
             if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
             if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
             
             const scene = scenes[id];
             if (!scene) {
-                console.error('Scene not found:', id);
+                console.error("场景不存在:", id);
+                document.getElementById('storyText').innerHTML = '<span style="color:#e74c3c;">错误：场景加载失败，请点击重置按钮</span>';
                 return;
             }
             
-            currentNode = id;
-            
-            if (scene.isWin) {
-                handleWin();
-                return;
-            }
-            if (scene.isDeath) {
-                handleDeath(scene.deathMsg);
-                return;
-            }
+            if (scene.isWin) { handleWin(); return; }
+            if (scene.isDeath) { handleDeath(scene.deathMsg); return; }
             
             document.getElementById('storyText').innerHTML = scene.text;
             
             if (scene.choices && scene.choices.length > 0) {
-                let choicesHtml = '';
+                let html = '';
                 for (let i = 0; i < scene.choices.length; i++) {
-                    const choice = scene.choices[i];
-                    let additionalClass = '';
-                    if (choice.isWin) additionalClass = 'win-option';
-                    else if (choice.effects && choice.effects.hp && choice.effects.hp <= -25) additionalClass = 'death-option';
-                    else if (choice.effects && choice.effects.sanity && choice.effects.sanity <= -20) additionalClass = 'danger-option';
-                    let reqText = choice.requiresItem ? ` (需要:${choice.requiresItem})` : '';
-                    choicesHtml += `<button class="choice-btn ${additionalClass}" data-choice-index="${i}">${choice.text}${reqText}</button>`;
+                    const c = scene.choices[i];
+                    let cls = '';
+                    if (c.next === 'win') cls = 'win-option';
+                    else if (c.effects && c.effects.hp && c.effects.hp <= -20) cls = 'death-option';
+                    let req = c.requiresItem ? ` (需要:${c.requiresItem})` : '';
+                    html += `<button class="choice-btn ${cls}" data-choice="${i}">${c.text}${req}</button>`;
                 }
-                document.getElementById('choiceButtons').innerHTML = choicesHtml;
+                document.getElementById('choiceButtons').innerHTML = html;
                 
                 // 绑定事件
-                document.querySelectorAll('.choice-btn').forEach(btn => {
+                document.querySelectorAll('#choiceButtons .choice-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (!gameActive) return;
-                        
-                        const idx = parseInt(btn.getAttribute('data-choice-index'));
+                        const idx = parseInt(btn.getAttribute('data-choice'));
                         const choice = scene.choices[idx];
                         if (!choice) return;
                         
                         if (choice.requiresItem) {
                             const backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
-                            const hasItem = backpack.some(item => item.name === choice.requiresItem);
-                            if (!hasItem) {
-                                alert(`需要 ${choice.requiresItem} 才能选择这个选项！`);
+                            if (!backpack.some(i => i.name === choice.requiresItem)) {
+                                alert(`需要 ${choice.requiresItem}`);
                                 return;
                             }
                         }
                         
-                        if (choice.effects) {
-                            applyEffects(choice.effects);
-                            if (!gameActive) return;
-                        }
-                        
-                        if (hp <= 0) { handleDeath('你的生命值归零...'); return; }
-                        if (sanity <= 0) { handleDeath('你的理智彻底崩溃...'); return; }
-                        
-                        if (choice.next) {
-                            renderScene(choice.next);
-                        }
+                        if (choice.effects) applyEffects(choice.effects);
+                        if (!gameActive) return;
+                        if (choice.next) renderScene(choice.next);
                     });
                 });
             } else {
-                document.getElementById('choiceButtons
+                document.getElementById('choiceButtons').innerHTML = '';
+            }
+            updateItemButtons();
+        }
+        
+        function resetGame() {
+            hp = 100;
+            sanity = 100;
+            blessing = 0;
+            gameActive = true;
+            updateStats();
+            renderScene('start');
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            addEventLog('重新开始挑战血月教堂');
+        }
+        
+        // 初始化
+        console.log("初始化教堂副本");
+        renderScene('start');
+        updateStats();
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        setInterval(() => {
+            let now = new Date();
+            let timeStr = `🕸️ ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            document.querySelectorAll('.status-time').forEach(el => el.textContent = timeStr);
+        }, 1000);
+    </script>
+</body>
+</html>
